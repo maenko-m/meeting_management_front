@@ -30,7 +30,7 @@
     "**/*.tsx",
     "next-env.d.ts",
     ".next/types/**/*.ts"
-  ],
+, "public/sw.js"  ],
   "exclude": [
     "node_modules"
   ]

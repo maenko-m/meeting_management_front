@@ -84,7 +84,7 @@ const MeetingRoomTimeline: React.FC<{ events: Event[], currentEvent: Event }> = 
       </Box>
 
       {events.map((event) => {
-        if (colorsCount > colors.length) colorsCount = 0;
+        if (colorsCount >= colors.length) colorsCount = 0;
         const startMinutes = timeToMinutes(event.timeStart) - timeToMinutes("6:00");
         const endMinutes = timeToMinutes(event.timeEnd) - timeToMinutes("6:00");
         const left = (startMinutes / totalMinutes) * 100 + "%"; 

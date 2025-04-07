@@ -1,5 +1,6 @@
 import type { AppProps } from 'next/app';
 import Sidebar from '../components/Sidebar';
+import PushSubscription from '../components/PushSubscription';
 import '../styles/global.css';
 import { ThemeProvider } from '@mui/material';
 import { AuthProvider, useAuth } from '../context/AuthContext';
@@ -42,6 +43,7 @@ const AuthenticatedApp: React.FC<AppProps> = ({ Component, pageProps }) => {
 
   return (
     <ThemeProvider theme={theme}>
+      {user && <PushSubscription userId={user.id} />}
       <div style={{ display: 'flex', gap: '60px', padding: '60px', width: 'calc(100% - 60px * 2)', height: 'calc(100vh - 60px * 2)', overflow: 'hidden' }}>
         <Sidebar />
         <div style={{ width: "1485px", overflowY: 'auto' }}>
