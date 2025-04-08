@@ -4,6 +4,7 @@ import PushSubscription from '../components/PushSubscription';
 import '../styles/global.css';
 import { ThemeProvider } from '@mui/material';
 import { AuthProvider, useAuth } from '../context/AuthContext';
+import { NotificationProvider } from '../context/NotificationContext';
 import theme from '../styles/theme';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
@@ -58,8 +59,11 @@ const AuthenticatedApp: React.FC<AppProps> = ({ Component, pageProps }) => {
 
 export default function MyApp(props: AppProps) {
   return (
-    <AuthProvider>
-      <AuthenticatedApp {...props} />
-    </AuthProvider>
+    <NotificationProvider>
+      <AuthProvider>
+        <AuthenticatedApp {...props} />
+      </AuthProvider>
+    </NotificationProvider>
+    
   );
 }

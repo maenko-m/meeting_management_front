@@ -6,21 +6,21 @@ import '../../styles/global.css';
 import theme from '../../styles/theme';
 import { login as apiLogin } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
+import { useNotification } from '../../context/NotificationContext';
 
 const Login = () => {
   const [open] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { showNotification } = useNotification()
   const { login } = useAuth();
 
   const isFormValid = email.trim() !== "" && password.trim() !== "";
 
   const handleLogin = async () => {
     setLoading(true);
-    setError(null);
 
     try {
       const token = await apiLogin({
@@ -30,8 +30,10 @@ const Login = () => {
       login(token);
       router.push('/events');
     } catch (err) {
-      console.error('Ошибка авторизации:', err);
-      setError(err.message || 'Произошла ошибка при авторизации');
+      showNotification(
+        err instanceof Error ? err.message : 'Ошибка авторизации',
+        'error'
+      );
     } finally {
       setLoading(false);
     }

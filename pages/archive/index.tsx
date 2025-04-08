@@ -8,27 +8,13 @@ import { MeetingRoom, Office, Event } from "../../types";
 import { useRouter } from 'next/router';
 import { deleteEvent, fetchEvents } from '../../api/events';
 import { fetchMeetingRooms } from '../../api/meetingRooms';
-
-const countEvent = 12;
-const events = Array(countEvent).fill({
-    name: "Литературно-музыкальная гостиная «8 июля – День семьи, любви и верности»",
-    author: "Августиниан Марсель Валенинович",
-    room: "Переговорная комната 1",
-    date: "30.12.9999",
-    startTime: "12:59",
-    endTime: "00:01",
-    menuIcon: <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#858585"><path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/></svg>,
-    repeats: "Каждую неделю",
-    description: "Есть над чем задуматься: явные признаки победы институционализации неоднозначны и будут объединены в целые кластеры себе подобных. Как уже неоднократно упомянуто, действия представителей оппозиции, вне зависимости от их уровня, должны быть заблокированы в рамках своих собственных рациональных ограничений. Являясь всего лишь частью общей картины, многие известные личности могут быть функционально разнесены на независимые элементы.",
-    employees: [
-        "Иванов Иван Иванович",
-        "Иванов Иван Иванович",
-        "Иванов Иван Иванович",
-    ],
-});
+import { useConfirmDialog } from '../../hooks/useConfirmDialog';
+import { useNotification } from '../../context/NotificationContext';
 
 const ProfilePage = () => {
     const router = useRouter();
+    const { confirm, ConfirmComponent } = useConfirmDialog();
+    const { showNotification } = useNotification()
 
     const [typeValue, setTypeValue] = useState<number>(0);
     const [activeButton, setActiveButton] = useState("Я организатор");
@@ -66,15 +52,26 @@ const ProfilePage = () => {
     }
 
     const handleDeleteEvent = async (event: Event) => {
-        if (window.confirm("Вы уверены, что хотите удалить это мероприятие?")) {
+        const confirmed = await confirm({
+            message: 'Вы уверены, что хотите удалить это мероприятие?',
+            confirmText: 'Удалить',
+            cancelText: 'Отмена',
+        });
+        if (confirmed) {
           try {
             await deleteEvent(event.id); 
             setAnchorEls({});
             loadEvents(); 
-            alert("Мероприятие успешно удалено!");
+            showNotification(
+                "Мероприятие успешно удалено",
+                'success'
+            );
           } catch (err) {
             console.error("Ошибка при удалении:", err);
-            alert("Не удалось удалить мероприятие.");
+            showNotification(
+                "Не удалось удалить мероприятие",
+                'error'
+            );
           }
         }
     };
@@ -85,7 +82,10 @@ const ProfilePage = () => {
             const data = await fetchMeetingRooms();
             setRooms(data.data);
           } catch (err) {
-            console.error("Не удалось загрузить комнаты:", err);
+            showNotification(
+                "Не удалось загрузить комнаты",
+                'error'
+            );
           }
         };
         loadRooms();
@@ -107,6 +107,10 @@ const ProfilePage = () => {
           const data = await fetchEvents(filters);
           setEvents(data.data);
         } catch (err) {
+            showNotification(
+                "Не удалось загрузить мероприятия",
+                'error'
+            );
           setEventsError("Не удалось загрузить мероприятия");
         } finally {
           setEventsLoading(false);
@@ -252,6 +256,7 @@ const ProfilePage = () => {
                     </TableContainer>
                 </Box>
             </div>
+            <ConfirmComponent />
         </ThemeProvider>
     );
 };

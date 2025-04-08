@@ -7,8 +7,10 @@ import { fetchEvents, deleteEvent } from "../../api/events";
 import { fetchMeetingRooms } from "../../api/meetingRooms";
 import { Event, MeetingRoom, } from "../../types";
 import EventForm from "../../components/EventForm";
+import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'next/router';
+import { useConfirmDialog } from '../../hooks/useConfirmDialog';
 
 interface EventsProps {
     disableRoomElements?: boolean;
@@ -42,6 +44,8 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
 
   const { user, loading, hasRole } = useAuth();
   const router = useRouter();
+  const { showNotification } = useNotification()
+  const { confirm, ConfirmComponent } = useConfirmDialog();
 
   useEffect(() => {
         if (!loading && (hasRole('ROLE_MODERATOR')) && !disableRoomElements) {
@@ -84,15 +88,25 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
   };
 
   const handleDeleteEvent = async (event: Event) => {
-    if (window.confirm("Вы уверены, что хотите удалить это мероприятие?")) {
+    const confirmed = await confirm({
+        message: 'Вы уверены, что хотите удалить это мероприятие?',
+        confirmText: 'Удалить',
+        cancelText: 'Отмена',
+    });
+    if (confirmed) {
       try {
         await deleteEvent(event.id); 
         setAnchorEls({});
         loadEvents(); 
-        alert("Мероприятие успешно удалено!");
+        showNotification(
+            "Мероприятие успешно удалено",
+            'success'
+        );
       } catch (err) {
-        console.error("Ошибка при удалении:", err);
-        alert("Не удалось удалить мероприятие.");
+        showNotification(
+            "Не удалось удалить мероприятие",
+            'error'
+        );
       }
     }
   };
@@ -113,11 +127,14 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
         const data = await fetchMeetingRooms();
         setRooms(data.data);
       } catch (err) {
-        console.error("Не удалось загрузить комнаты:", err);
+        showNotification(
+            "Не удалось загрузить комнаты",
+            'error'
+        );
       }
     };
     loadRooms();
-  }, []);
+  }, [showNotification]);
 
   const loadEvents = async () => {
     try {
@@ -137,6 +154,10 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
       console.log(data);
       setEventsAmount([data.total[0], data.total[1]]);
     } catch (err) {
+        showNotification(
+            "Не удалось загрузить мероприятия",
+            'error'
+        );
       setEventsError("Не удалось загрузить мероприятия");
     } finally {
       setEventsLoading(false);
@@ -426,6 +447,7 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
                         timeEnd: selectedEvent!.timeEnd,
                     }} 
                     idEvent={formMode === 'create' ? null : selectedEvent!.id}/>
+                <ConfirmComponent />
             </div>
         </ThemeProvider>
     );

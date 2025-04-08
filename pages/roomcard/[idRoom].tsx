@@ -24,6 +24,7 @@ import { fetchMeetingRoomById } from "../../api/meetingRooms";
 import Events from "../events";
 import { useAuth } from "../../context/AuthContext";
 import EventsAdmin from "../eventsadmin";
+import { useNotification } from '../../context/NotificationContext';
 
 const MeetingRoomCard = () => {
     const [meetingRoom, setMeetingRoom] = useState<FullMeetingRoom>();
@@ -34,16 +35,7 @@ const MeetingRoomCard = () => {
     const { idRoom  } = router.query;
 
     const { loading, hasRole } = useAuth();
-
-    const rows = [
-        { label: "Название", value: meetingRoom?.name },
-        { label: "Офис", value: meetingRoom?.office.name },
-        { label: "Статус", value: meetingRoom?.status },
-        { label: "Описание", value: meetingRoom?.description },
-        { label: "Доступность", value: meetingRoom?.isPublic ? 'Публичная' : 'Приватная' },
-        meetingRoom?.isPublic === false ? { label: "Сотрудники", value: meetingRoom?.employees.map(employee => employee.fullName) } : {},
-        { label: "Емкость", value: meetingRoom?.size.toString() },
-    ];
+    const { showNotification } = useNotification()
     
     const [selectedImage, setSelectedImage] = useState<string>();
 
@@ -110,14 +102,17 @@ const MeetingRoomCard = () => {
             setError(null);
             const roomId = Number(idRoom);
             if (isNaN(roomId)) {
-              throw new Error('Неверный ID комнаты');
+                router.push('/rooms');
             }
     
             const roomData = await fetchMeetingRoomById(roomId); 
             setMeetingRoom(roomData);
             setSelectedImage(roomData.photoPath[0])
           } catch (err) {
-            console.error('Ошибка загрузки комнаты:', err);
+            showNotification(
+                "Не удалось загрузить данные комнат",
+                'error'
+            );
             setError('Не удалось загрузить данные комнаты');
           } finally {
             setLoading(false);

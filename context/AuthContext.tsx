@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getCurrentUser } from '../api/auth'; 
 import { FullEmployee } from '../types';
 import { useRouter } from 'next/router';
+import { useNotification } from './NotificationContext';
 
 interface AuthContextType {
   user: FullEmployee | null;
@@ -18,6 +19,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<FullEmployee | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { showNotification } = useNotification();
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -25,14 +27,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const currentUser = await getCurrentUser();
         setUser(currentUser);
       } catch (err) {
-        console.error('Ошибка инициализации авторизации:', err);
+        showNotification(
+          err instanceof Error ? err.message : 'Ошибка инициализации авторизации',
+          'error'
+        );
         setUser(null);
       } finally {
         setLoading(false);
       }
     };
     initializeAuth();
-  }, []);
+  }, [showNotification]);
 
   const login = async (token: string) => {
     localStorage.setItem('jwt', token);
@@ -40,7 +45,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const currentUser = await getCurrentUser();
       setUser(currentUser);
     } catch (err) {
-      console.error('Ошибка после логина:', err);
+      showNotification(
+        err instanceof Error ? err.message : 'Ошибка после логина',
+        'error'
+      );
       setUser(null);
     }
   };

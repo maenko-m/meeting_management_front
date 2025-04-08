@@ -1,5 +1,6 @@
 import { Employee, FullEmployee } from "../types";
 
+
 interface LoginCredentials {
     email: string;
     password: string;

@@ -7,6 +7,7 @@ import { MeetingRoom, Office } from "../../types";
 import { fetchMeetingRooms } from "../../api/meetingRooms";
 import { fetchOffices } from "../../api/offices";
 import { useNavigate } from "react-router-dom";
+import { useNotification } from '../../context/NotificationContext';
 
 
   
@@ -28,6 +29,7 @@ const MeetingRooms = () => {
     const [limit] = useState(10);
 
     const router = useRouter();
+    const { showNotification } = useNotification()
 
     const handleRowClick = (id: number) => {
         router.push(`/roomcard/${id}`);
@@ -39,6 +41,10 @@ const MeetingRooms = () => {
             const data = await fetchOffices();
             setOffices(data);
           } catch (err) {
+            showNotification(
+                "Не удалось загрузить офисы",
+                'error'
+            );
             setError("Не удалось загрузить офисы");
           }
         };
@@ -61,6 +67,10 @@ const MeetingRooms = () => {
             setRooms(data.data); 
             setRoomsAmount(data.total[0]);
           } catch (err) {
+            showNotification(
+                "Не удалось загрузить список комнат",
+                'error'
+            );
             setError("Не удалось загрузить список комнат");
           } finally {
             setLoading(false);

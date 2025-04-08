@@ -35,6 +35,7 @@ import { fetchOffices } from "../api/offices";
 import { fetchMeetingRooms } from "../api/meetingRooms";
 import { fetchEmployees } from "../api/employees";
 import { createEvent, updateEvent } from "../api/events";
+import { useNotification } from '../context/NotificationContext';
 
 
 const events = [
@@ -70,6 +71,7 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
   const [offices, setOffices] = useState<Office[]>([]);
   const [rooms, setRooms] = useState<MeetingRoom[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const { showNotification } = useNotification()
 
   const isOverSize = selectedUsers.length > selectedSize;
 
@@ -94,7 +96,10 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
           setSelectedSize(roomsData.data[0].size);
         }
       } catch (err) {
-        console.error("Ошибка загрузки данных:", err);
+        showNotification(
+          "Ошибка загрузки данных",
+          'error'
+        );
       }
     };
     loadData();
@@ -102,7 +107,6 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
 
   useEffect(() => {
     if (mode === "edit" && event) {
-      console.log(idEvent);
       setEventName(event.name);
       setEventDesc(event.description);
       setEventRoomId(event.meetingRoomId);
@@ -158,7 +162,10 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
 
   const handleSubmit = async () => {
     if (!eventName || !eventRoomId || !selectedDate || !selectedTimeStart || !selectedTimeEnd) {
-      alert("Заполните все обязательные поля!");
+      showNotification(
+        "Заполните все обязательные поля",
+        'error'
+      );
       return;
     }
 
@@ -176,15 +183,23 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
     try {
       if (mode === "create") {
         await createEvent(newEvent);
-        alert("Мероприятие успешно создано!");
+        showNotification(
+          "Мероприятие успешно создано",
+          'success'
+        );
       } else if (mode === "edit" && idEvent) {
         await updateEvent(idEvent!, newEvent);
-        alert("Мероприятие успешно обновлено!");
+        showNotification(
+          "Мероприятие успешно обновлено",
+          'success'
+        );
       }
       onClose();
     } catch (err) {
-      console.error("Ошибка при сохранении:", err);
-      alert("Произошла ошибка при сохранении мероприятия.");
+      showNotification(
+        "Произошла ошибка при сохранении мероприятия",
+        'error'
+      );
     }
   };
 

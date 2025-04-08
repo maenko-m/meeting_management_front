@@ -7,6 +7,7 @@ import { Event, MeetingRoom, Office } from '../../types';
 import { fetchOffices } from "../../api/offices";
 import { fetchMeetingRooms } from "../../api/meetingRooms";
 import { fetchEvents } from "../../api/events";
+import { useNotification } from '../../context/NotificationContext';
 
 const colors = [
     'rgba(50, 193, 255, 0.7)',
@@ -37,6 +38,8 @@ const Timeline = () => {
     const [dataLoading, setDataLoading] = useState(false); 
     const [dataError, setDataError] = useState<string | null>(null);
 
+    const { showNotification } = useNotification()
+
     const formatDate = (date) => {
         const options = { weekday: 'long', day: 'numeric', month: 'long' };
         return date.toLocaleDateString('ru-RU', options);
@@ -59,8 +62,11 @@ const Timeline = () => {
               setSelectedOfficeId(officesData[0].id); 
             }
           } catch (err) {
+            showNotification(
+                "Не удалось загрузить офисы",
+                'error'
+            );
             setOfficesError("Не удалось загрузить офисы");
-            console.error("Ошибка загрузки офисов:", err);
           } finally {
             setOfficesLoading(false);
           }
@@ -86,8 +92,11 @@ const Timeline = () => {
             });
             setEvents(eventsData.data);
           } catch (err) {
+            showNotification(
+                "Не удалось загрузить комнаты или мероприятия",
+                'error'
+            );
             setDataError("Не удалось загрузить комнаты или мероприятия");
-            console.error("Ошибка загрузки данных:", err);
           } finally {
             setDataLoading(false);
           }

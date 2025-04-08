@@ -8,6 +8,7 @@ import { Employee, Office } from "../../types";
 import { useAuth } from '../../context/AuthContext';
 import { UpdateEmployeeData, updateEmployee } from '../../api/employees';
 import { useRouter } from 'next/router';
+import { useNotification } from '../../context/NotificationContext';
 
 
 const ProfilePage = () => {
@@ -28,6 +29,7 @@ const ProfilePage = () => {
     const [defaultOfficeId, setDefaultOfficeId] = useState<number | null>(null);
 
     const { user, loading, updateUser } = useAuth();
+    const { showNotification } = useNotification()
 
     const [isEditingPassword, setIsEditingPassword] = useState(false);
     const [isEdited, setIsEdited] = useState(false);
@@ -85,7 +87,10 @@ const ProfilePage = () => {
           setIsEdited(false);
           setIsEditingPassword(false);
         } catch (err) {
-          console.error('Ошибка сохранения:', err);
+          showNotification(
+            "Не удалось сохранить изменения",
+            'error'
+          );
           setSaveError('Не удалось сохранить изменения');
         } finally {
           setSaveLoading(false);
@@ -119,7 +124,10 @@ const ProfilePage = () => {
             const storedOfficeId = localStorage.getItem('default_office_id');
             setDefaultOfficeId(storedOfficeId ? parseInt(storedOfficeId, 10) : null);
           } catch (err) {
-            console.error("Не удалось загрузить офисы");
+            showNotification(
+              "Не удалось загрузить офисы",
+              'error'
+            );
           }
         };
         loadOffices();
