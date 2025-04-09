@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Menu, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Select, Button, ThemeProvider, IconButton, Collapse, useMediaQuery } from "@mui/material";
+import { Box, Typography, Menu, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Select, Button, ThemeProvider, IconButton, Collapse, useMediaQuery, Pagination } from "@mui/material";
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import '../../styles/global.css';
 import theme from '../../styles/theme';
@@ -149,6 +149,10 @@ const EventsAdmin: React.FC<EventsProps> = ({ disableRoomElements = false, idRoo
     useEffect(() => {
         loadEvents();
     }, [nameFilter, roomId, descOrder, page, limit]);
+
+    const handlePageChange = (event: React.ChangeEvent<unknown>, newPage: number) => {
+        setPage(newPage);
+      };
 
     if (loading) {
         return (
@@ -311,6 +315,17 @@ const EventsAdmin: React.FC<EventsProps> = ({ disableRoomElements = false, idRoo
                         </TableBody>
                     </Table>
                 </TableContainer>
+                {5 > 1 && (
+                <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+                    <Pagination
+                        count={5}
+                        page={page}
+                        onChange={handlePageChange}
+                        color="primary"
+                        size="medium"
+                    />
+                </Box>
+                )}
                 <EventForm 
                     open={formOpen} 
                     onClose={handleFormClose} 

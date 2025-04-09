@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Menu, MenuItem, Tabs, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Select, Button, ThemeProvider, IconButton, Collapse, useMediaQuery } from "@mui/material";
+import { Box, Typography, Menu, MenuItem, Tabs, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Select, Button, ThemeProvider, IconButton, Collapse, useMediaQuery, Pagination } from "@mui/material";
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import '../../styles/global.css';
 import theme from '../../styles/theme';
@@ -57,8 +57,9 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
     }, [user, loading, hasRole, router]);
 
     const handleChange = (_: React.SyntheticEvent, newValue: number) => {
+        console.log(newValue);
+        console.log(value);
         setValue(newValue);
-        setPage(1); 
     };
 
     const toggleRow = (index: number) => {
@@ -170,7 +171,12 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
     useEffect(() => {
 
         loadEvents();
-    }, [value!, nameFilter, roomId, descOrder, page, limit]);
+        console.log(value);
+    }, [value, nameFilter, roomId, descOrder, page, limit]);
+
+    const handlePageChange = (event: React.ChangeEvent<unknown>, newPage: number) => {
+        setPage(newPage);
+    };
 
 
     if (loading || hasRole('ROLE_MODERATOR')) {
@@ -185,21 +191,20 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
 
                 {/* Фильтрация */}
                 <Box sx={{ display: "flex", alignItems: isLaptop ? "stetch" : "center", justifyContent: "space-between", marginBottom: "1em", flexDirection: isLaptop ? "column" : "row", gap: 1 }}>
-                    <Tabs value={value} onChange={handleChange} aria-label="event tabs" TabIndicatorProps={{ style: { display: 'none' } }}>
-                    <Box sx={{ width: "100%", display: "flex", alignItems: isMobile ? "flex-end" : "center", flexDirection: isMobile ? "column" : "row" }}>
-                        <Tab label={
-                            <Box sx={{ display: "flex", gap: 1  }}>
-                                <Typography variant='h5' sx={{ color: value === 0 ? '#000' : '#A3A3A3' }}>Мои мероприятия</Typography>
-                                <Typography sx={{ fontSize: '14px', color: '#A3A3A3', visibility: `${disableRoomElements ? 'collapse' : 'visible'}`  }}>{eventsAmount[0]}</Typography>
-                            </Box>
-                        } sx={{ opacity: value === 0 ? 1 : 0.5 }} />
-                        <Tab label={
-                            <Box sx={{ display: "flex", gap: 1  }}>
-                                <Typography variant='h5' sx={{ color: value === 1 ? '#000' : '#A3A3A3' }}>Участвую</Typography>
-                                <Typography sx={{ fontSize: '14px', color: '#A3A3A3', visibility: `${disableRoomElements ? 'collapse' : 'visible'}` }}>{eventsAmount[1]}</Typography>
-                            </Box>
-                        } sx={{ opacity: value === 1 ? 1 : 0.5 }} />
-                    </Box>
+                    <Tabs value={value} onChange={handleChange} aria-label="event tabs" sx={{ '& .MuiTabs-indicator': { display: 'none' }, width: "100%", display: "flex", alignItems: isMobile ? "flex-end" : "center", flexDirection: isMobile ? "column" : "row" }}>
+                            <Tab label={
+                                <Box sx={{ display: "flex", gap: 1  }}>
+                                    <Typography variant='h5' sx={{ color: value === 0 ? '#000' : '#A3A3A3' }}>Мои мероприятия</Typography>
+                                    <Typography sx={{ fontSize: '14px', color: '#A3A3A3', visibility: `${disableRoomElements ? 'collapse' : 'visible'}`  }}>{eventsAmount[0]}</Typography>
+                                </Box>
+                            } sx={{ opacity: value === 0 ? 1 : 0.5 }} />
+                            <Tab label={
+                                <Box sx={{ display: "flex", gap: 1  }}>
+                                    <Typography variant='h5' sx={{ color: value === 1 ? '#000' : '#A3A3A3' }}>Участвую</Typography>
+                                    <Typography sx={{ fontSize: '14px', color: '#A3A3A3', visibility: `${disableRoomElements ? 'collapse' : 'visible'}` }}>{eventsAmount[1]}</Typography>
+                                </Box>
+                            } sx={{ opacity: value === 1 ? 1 : 0.5 }} />
+                        
                     </Tabs>
                     <Box sx={{ display:"flex", alignItems: "center", gap: 2, flexDirection: isMobile ? "column" : "row" }}>
                         {value === 0 && (
@@ -437,6 +442,17 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
                         </TableBody>
                     </Table>
                 </TableContainer>
+                )}
+                {5 > 1 && (
+                <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+                    <Pagination
+                        count={5}
+                        page={page}
+                        onChange={handlePageChange}
+                        color="primary"
+                        size="medium"
+                    />
+                </Box>
                 )}
                 <EventForm 
                     open={formOpen} 

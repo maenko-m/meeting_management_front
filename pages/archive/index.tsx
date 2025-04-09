@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, ThemeProvider, TextField, Button, Checkbox, FormControlLabel, Select, MenuItem, Typography, TableContainer, Table, TableHead, TableRow, TableCell, Paper, IconButton, Menu, Collapse, TableBody, useMediaQuery, Stack } from "@mui/material";
+import { Box, ThemeProvider, TextField, Button, Checkbox, FormControlLabel, Select, MenuItem, Typography, TableContainer, Table, TableHead, TableRow, TableCell, Paper, IconButton, Menu, Collapse, TableBody, useMediaQuery, Stack, Pagination } from "@mui/material";
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import '../../styles/global.css';
 import theme from '../../styles/theme';
@@ -126,6 +126,10 @@ const ProfilePage = () => {
         loadEvents();
     }, [typeValue, nameFilter, roomId, descOrder, page, limit]);
 
+    const handlePageChange = (event: React.ChangeEvent<unknown>, newPage: number) => {
+        setPage(newPage);
+    };
+
     return (
         <ThemeProvider theme={theme}>
             <div style={{ width: "100%"}}>
@@ -181,7 +185,7 @@ const ProfilePage = () => {
                                     <Button 
                                         variant={activeButton === "Я участник" ? "contained" : "outlined"} 
                                         color={activeButton === "Я участник" ? "success" : "secondary"}
-                                        onClick={() => setTypeFilter(1, 'Я участник')} onClick={() => setTypeFilter(0, 'Я организатор')} 
+                                        onClick={() => setTypeFilter(1, 'Я участник')}
                                         sx={{
                                             flex: isLaptop ? 1 : "auto",
                                             width: isLaptop ? "100%" : "auto",
@@ -222,7 +226,7 @@ const ProfilePage = () => {
                                         <Button 
                                             variant={activeButton === "Я участник" ? "contained" : "outlined"} 
                                             color={activeButton === "Я участник" ? "success" : "secondary"}
-                                            onClick={() => setTypeFilter(1, 'Я участник')} onClick={() => setTypeFilter(0, 'Я организатор')} 
+                                            onClick={() => setTypeFilter(1, 'Я участник')}
                                             sx={{
                                                 flex: isLaptop ? 1 : "auto",
                                                 width: isLaptop ? "100%" : "auto",
@@ -349,6 +353,17 @@ const ProfilePage = () => {
                             </TableBody>
                         </Table>
                     </TableContainer>
+                    {5 > 1 && (
+                    <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+                        <Pagination
+                            count={5}
+                            page={page}
+                            onChange={handlePageChange}
+                            color="primary"
+                            size="medium"
+                        />
+                    </Box>
+                    )}
                 </Box>
             </div>
             <ConfirmComponent />

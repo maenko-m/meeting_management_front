@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Select, MenuItem, Button, ThemeProvider, useMediaQuery, Stack } from "@mui/material";
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Select, MenuItem, Button, ThemeProvider, useMediaQuery, Stack, Pagination } from "@mui/material";
 import '../../styles/global.css';
 import theme from '../../styles/theme';
 import { MeetingRoom, Office } from "../../types";
@@ -84,6 +84,10 @@ const MeetingRooms = () => {
     
         loadRooms();
     }, [nameFilter, officeId, activeButton, accessibleButton, page, limit]);
+
+    const handlePageChange = (event: React.ChangeEvent<unknown>, newPage: number) => {
+        setPage(newPage);
+    };
 
     return (
         <ThemeProvider theme={theme}>
@@ -238,6 +242,17 @@ const MeetingRooms = () => {
                     </TableBody>
                     </Table>
                 </TableContainer>
+                {5 > 1 && (
+                <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+                    <Pagination
+                        count={5}
+                        page={page}
+                        onChange={handlePageChange}
+                        color="primary"
+                        size="medium"
+                    />
+                </Box>
+                )}
             </div>
         </ThemeProvider>
     );

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, ThemeProvider, List, ListItemButton, ListItemIcon, ListItemText, Typography, Button, Icon, useMediaQuery } from '@mui/material';
 import { usePathname, useRouter } from 'next/navigation';
-import '../../styles/global.css';
+import '../styles/global.css';
 import theme from '../styles/theme';
 import { getCurrentUser } from '../api/auth';
 import { Employee } from '../types';
