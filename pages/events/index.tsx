@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Menu, MenuItem, Tabs, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Select, Button, ThemeProvider, IconButton, Collapse } from "@mui/material";
+import { Box, Typography, Menu, MenuItem, Tabs, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Select, Button, ThemeProvider, IconButton, Collapse, useMediaQuery } from "@mui/material";
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import '../../styles/global.css';
 import theme from '../../styles/theme';
@@ -19,170 +19,174 @@ interface EventsProps {
   
 const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }) => {
 
-  const [value, setValue] = useState(0); 
-  const [events, setEvents] = useState<Event[]>([]);
-  const [rooms, setRooms] = useState<MeetingRoom[]>([]);
-  const [eventsLoading, setEventsLoading] = useState(true);
-  const [eventsError, setEventsError] = useState<string | null>(null);
+    const isLaptop = useMediaQuery("(max-width:1440px)");
+    const isMobile = useMediaQuery("(max-width:600px)");
 
-  const [nameFilter, setNameFilter] = useState("");
-  const [roomId, setRoomId] = useState<number | "">(idRoom ? idRoom : "");
-  const [descOrder, setDescOrder] = useState<boolean>(false);
-  const [page, setPage] = useState(1);
-  const [limit] = useState(10);
+    const [value, setValue] = useState(0); 
+    const [events, setEvents] = useState<Event[]>([]);
+    const [rooms, setRooms] = useState<MeetingRoom[]>([]);
+    const [eventsLoading, setEventsLoading] = useState(true);
+    const [eventsError, setEventsError] = useState<string | null>(null);
 
-
-  const [openRows, setOpenRows] = useState<{ [key: number]: boolean }>({});
-  const [anchorEls, setAnchorEls] = useState<{ [key: number]: HTMLElement | null }>({});
-
-  const [eventsAmount, setEventsAmount] = useState<Number[]>([0,0]);
-
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [formOpen, setFormOpen] = useState(false);
-  const [formMode, setFormMode] = useState<"create" | "edit">("create");
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-
-  const { user, loading, hasRole } = useAuth();
-  const router = useRouter();
-  const { showNotification } = useNotification()
-  const { confirm, ConfirmComponent } = useConfirmDialog();
-
-  useEffect(() => {
-        if (!loading && (hasRole('ROLE_MODERATOR')) && !disableRoomElements) {
-            router.push('/eventsadmin');
-        }
-  }, [user, loading, hasRole, router]);
-
-  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-    setPage(1); 
-  };
-
-  const toggleRow = (index: number) => {
-    setOpenRows((prev) => ({ ...prev, [index]: !prev[index] }));
-  };
-
-  const handleClick = (index: number) => (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEls((prev) => ({ ...prev, [index]: event.currentTarget }));
-  };
-  
-  const handleClose = (index: number) => () => {
-    setAnchorEls((prev) => ({ ...prev, [index]: null }));
-  };
-
-  const handleDialogClose = () => {
-    setDialogOpen(false);
-    setSelectedEvent(null);
-  };
-
-  const handleAddEvent = () => {
-    setFormMode("create");
-    setSelectedEvent(null);
-    setFormOpen(true);
-  };
-
-  const handleEditEvent = (event: Event) => {
-    setFormMode("edit");
-    setSelectedEvent(event);
-    setFormOpen(true);
-  };
-
-  const handleDeleteEvent = async (event: Event) => {
-    const confirmed = await confirm({
-        message: 'Вы уверены, что хотите удалить это мероприятие?',
-        confirmText: 'Удалить',
-        cancelText: 'Отмена',
-    });
-    if (confirmed) {
-      try {
-        await deleteEvent(event.id); 
-        setAnchorEls({});
-        loadEvents(); 
-        showNotification(
-            "Мероприятие успешно удалено",
-            'success'
-        );
-      } catch (err) {
-        showNotification(
-            "Не удалось удалить мероприятие",
-            'error'
-        );
-      }
-    }
-  };
-
-  const handleFormClose = () => {
-    setFormOpen(false);
-    setAnchorEls({});
-    setSelectedEvent(null);
-    setFormMode("create");
-    loadEvents();
-  };
+    const [nameFilter, setNameFilter] = useState("");
+    const [roomId, setRoomId] = useState<number | "">(idRoom ? idRoom : "");
+    const [descOrder, setDescOrder] = useState<boolean>(false);
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
 
 
+    const [openRows, setOpenRows] = useState<{ [key: number]: boolean }>({});
+    const [anchorEls, setAnchorEls] = useState<{ [key: number]: HTMLElement | null }>({});
 
-  useEffect(() => {
-    const loadRooms = async () => {
-      try {
-        const data = await fetchMeetingRooms();
-        setRooms(data.data);
-      } catch (err) {
-        showNotification(
-            "Не удалось загрузить комнаты",
-            'error'
-        );
-      }
+    const [eventsAmount, setEventsAmount] = useState<Number[]>([0,0]);
+
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [formOpen, setFormOpen] = useState(false);
+    const [formMode, setFormMode] = useState<"create" | "edit">("create");
+    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+
+    const { user, loading, hasRole } = useAuth();
+    const router = useRouter();
+    const { showNotification } = useNotification()
+    const { confirm, ConfirmComponent } = useConfirmDialog();
+
+    useEffect(() => {
+            if (!loading && (hasRole('ROLE_MODERATOR')) && !disableRoomElements) {
+                router.push('/eventsadmin');
+            }
+    }, [user, loading, hasRole, router]);
+
+    const handleChange = (_: React.SyntheticEvent, newValue: number) => {
+        setValue(newValue);
+        setPage(1); 
     };
-    loadRooms();
-  }, [showNotification]);
 
-  const loadEvents = async () => {
-    try {
-      setEventsLoading(true);
-      setEventsError(null);
-      const filters = {
-        roomId: roomId === "" ? undefined : roomId,
-        name: nameFilter || undefined,
-        type: value === 0 ? "организатор" : "участник",
-        isArchived: 'false',
-        descOrder,
-        page,
-        limit,
-      };
-      const data = await fetchEvents(filters);
-      setEvents(data.data);
-      console.log(data);
-      setEventsAmount([data.total[0], data.total[1]]);
-    } catch (err) {
-        showNotification(
-            "Не удалось загрузить мероприятия",
-            'error'
+    const toggleRow = (index: number) => {
+        setOpenRows((prev) => ({ ...prev, [index]: !prev[index] }));
+    };
+
+    const handleClick = (index: number) => (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEls((prev) => ({ ...prev, [index]: event.currentTarget }));
+    };
+    
+    const handleClose = (index: number) => () => {
+        setAnchorEls((prev) => ({ ...prev, [index]: null }));
+    };
+
+    const handleDialogClose = () => {
+        setDialogOpen(false);
+        setSelectedEvent(null);
+    };
+
+    const handleAddEvent = () => {
+        setFormMode("create");
+        setSelectedEvent(null);
+        setFormOpen(true);
+    };
+
+    const handleEditEvent = (event: Event) => {
+        setFormMode("edit");
+        setSelectedEvent(event);
+        setFormOpen(true);
+    };
+
+    const handleDeleteEvent = async (event: Event) => {
+        const confirmed = await confirm({
+            message: 'Вы уверены, что хотите удалить это мероприятие?',
+            confirmText: 'Удалить',
+            cancelText: 'Отмена',
+        });
+        if (confirmed) {
+        try {
+            await deleteEvent(event.id); 
+            setAnchorEls({});
+            loadEvents(); 
+            showNotification(
+                "Мероприятие успешно удалено",
+                'success'
+            );
+        } catch (err) {
+            showNotification(
+                "Не удалось удалить мероприятие",
+                'error'
+            );
+        }
+        }
+    };
+
+    const handleFormClose = () => {
+        setFormOpen(false);
+        setAnchorEls({});
+        setSelectedEvent(null);
+        setFormMode("create");
+        loadEvents();
+    };
+
+
+
+    useEffect(() => {
+        const loadRooms = async () => {
+        try {
+            const data = await fetchMeetingRooms();
+            setRooms(data.data);
+        } catch (err) {
+            showNotification(
+                "Не удалось загрузить комнаты",
+                'error'
+            );
+        }
+        };
+        loadRooms();
+    }, [showNotification]);
+
+    const loadEvents = async () => {
+        try {
+        setEventsLoading(true);
+        setEventsError(null);
+        const filters = {
+            roomId: roomId === "" ? undefined : roomId,
+            name: nameFilter || undefined,
+            type: value === 0 ? "организатор" : "участник",
+            isArchived: 'false',
+            descOrder,
+            page,
+            limit,
+        };
+        const data = await fetchEvents(filters);
+        setEvents(data.data);
+        console.log(data);
+        setEventsAmount([data.total[0], data.total[1]]);
+        } catch (err) {
+            showNotification(
+                "Не удалось загрузить мероприятия",
+                'error'
+            );
+        setEventsError("Не удалось загрузить мероприятия");
+        } finally {
+        setEventsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+
+        loadEvents();
+    }, [value!, nameFilter, roomId, descOrder, page, limit]);
+
+
+    if (loading || hasRole('ROLE_MODERATOR')) {
+        return (
+        null
         );
-      setEventsError("Не удалось загрузить мероприятия");
-    } finally {
-      setEventsLoading(false);
     }
-  };
-
-  useEffect(() => {
-
-    loadEvents();
-  }, [value!, nameFilter, roomId, descOrder, page, limit]);
-
-
-  if (loading || hasRole('ROLE_MODERATOR')) {
-    return (
-      null
-    );
-  }
 
     return (
         <ThemeProvider theme={theme}>
-            <div style={{ width: "96%", padding: "4vh 2%", paddingLeft: "0" }}>
+            <div>
 
                 {/* Фильтрация */}
-                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1em" }}>
+                <Box sx={{ display: "flex", alignItems: isLaptop ? "stetch" : "center", justifyContent: "space-between", marginBottom: "1em", flexDirection: isLaptop ? "column" : "row", gap: 1 }}>
                     <Tabs value={value} onChange={handleChange} aria-label="event tabs" TabIndicatorProps={{ style: { display: 'none' } }}>
+                    <Box sx={{ width: "100%", display: "flex", alignItems: isMobile ? "flex-end" : "center", flexDirection: isMobile ? "column" : "row" }}>
                         <Tab label={
                             <Box sx={{ display: "flex", gap: 1  }}>
                                 <Typography variant='h5' sx={{ color: value === 0 ? '#000' : '#A3A3A3' }}>Мои мероприятия</Typography>
@@ -195,35 +199,38 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
                                 <Typography sx={{ fontSize: '14px', color: '#A3A3A3', visibility: `${disableRoomElements ? 'collapse' : 'visible'}` }}>{eventsAmount[1]}</Typography>
                             </Box>
                         } sx={{ opacity: value === 1 ? 1 : 0.5 }} />
+                    </Box>
                     </Tabs>
-                    <Box sx={{ display:"flex", alignItems: "center", gap: 2 }}>
+                    <Box sx={{ display:"flex", alignItems: "center", gap: 2, flexDirection: isMobile ? "column" : "row" }}>
                         {value === 0 && (
-                            <Button variant="outlined" color="secondary" onClick={() => handleAddEvent()}>
+                            <Button variant="outlined" color="secondary" onClick={() => handleAddEvent()} sx={{ width: isMobile ? "100%" : "auto"}}>
                                 <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#858585">
                                     <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/>
                                 </svg>
                             </Button>
                         )}
-                        <TextField
-                            variant="outlined"
-                            placeholder="Название мероприятия"
-                            value={nameFilter}
-                            onChange={(e) => setNameFilter(e.target.value)}
-                            sx={{ width: "270px",}}
-                        />
-                        <Select
-                            value={roomId}
-                            onChange={(e) => setRoomId(e.target.value as number | "")}
-                            displayEmpty
-                            sx={{ width: "270px", visibility: `${disableRoomElements ? 'collapse' : 'visible'}` }}
-                            >
-                            <MenuItem value="">Все комнаты</MenuItem>
-                            {rooms.map((room) => (
-                                <MenuItem key={room.id} value={room.id}>
-                                {room.name}
-                                </MenuItem>
-                            ))}
-                        </Select>
+                        <Box sx={{ display: "flex", gap: 2, width: "100%", flexDirection: isMobile ? "column" : "row" }}>
+                            <TextField
+                                variant="outlined"
+                                placeholder="Название мероприятия"
+                                value={nameFilter}
+                                onChange={(e) => setNameFilter(e.target.value)}
+                                sx={{ width: isLaptop ? "100%" : "230px"}}
+                            />
+                            <Select
+                                value={roomId}
+                                onChange={(e) => setRoomId(e.target.value as number | "")}
+                                displayEmpty
+                                sx={{ width: isLaptop ? "100%" : "230px", visibility: `${disableRoomElements ? 'collapse' : 'visible'}` }}
+                                >
+                                <MenuItem value="">Все комнаты</MenuItem>
+                                {rooms.map((room) => (
+                                    <MenuItem key={room.id} value={room.id}>
+                                    {room.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </Box>
                     </Box>
                 </Box>
                 
@@ -235,10 +242,10 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
                             <TableRow>
                                 <TableCell />
                                 <TableCell>Наименование</TableCell>
-                                <TableCell>Переговорная комната</TableCell>
+                                <TableCell>{isLaptop ? "Перег. комната" : "Переговорная комната"}</TableCell>
                                 <TableCell>Дата</TableCell>
-                                <TableCell>Время начала</TableCell>
-                                <TableCell>Время оканчания</TableCell>
+                                <TableCell>{isLaptop ? "Начало" : "Время начала"}</TableCell>
+                                <TableCell>{isLaptop ? "Конец" : "Время оканчания"}</TableCell>
                                 <TableCell align="center" sx={{ padding: "0" }}>
                                     <svg width="16" height="24" viewBox="0 0 16 4" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M2 4C1.45 4 0.979167 3.80417 0.5875 3.4125C0.195833 3.02083 0 2.55 0 2C0 1.45 0.195833 0.979167 0.5875 0.5875C0.979167 0.195833 1.45 0 2 0C2.55 0 3.02083 0.195833 3.4125 0.5875C3.80417 0.979167 4 1.45 4 2C4 2.55 3.80417 3.02083 3.4125 3.4125C3.02083 3.80417 2.55 4 2 4ZM8 4C7.45 4 6.97917 3.80417 6.5875 3.4125C6.19583 3.02083 6 2.55 6 2C6 1.45 6.19583 0.979167 6.5875 0.5875C6.97917 0.195833 7.45 0 8 0C8.55 0 9.02083 0.195833 9.4125 0.5875C9.80417 0.979167 10 1.45 10 2C10 2.55 9.80417 3.02083 9.4125 3.4125C9.02083 3.80417 8.55 4 8 4ZM14 4C13.45 4 12.9792 3.80417 12.5875 3.4125C12.1958 3.02083 12 2.55 12 2C12 1.45 12.1958 0.979167 12.5875 0.5875C12.9792 0.195833 13.45 0 14 0C14.55 0 15.0208 0.195833 15.4125 0.5875C15.8042 0.979167 16 1.45 16 2C16 2.55 15.8042 3.02083 15.4125 3.4125C15.0208 3.80417 14.55 4 14 4Z" fill="#858585"/>
@@ -351,10 +358,10 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
                                 <TableCell />
                                 <TableCell>Наименование</TableCell>
                                 <TableCell>Автор</TableCell>
-                                <TableCell>Переговорная комната</TableCell>
+                                <TableCell>{isLaptop ? "Перег. комната" : "Переговорная комната"}</TableCell>
                                 <TableCell>Дата</TableCell>
-                                <TableCell>Время начала</TableCell>
-                                <TableCell>Время оканчания</TableCell>
+                                <TableCell>{isLaptop ? "Начало" : "Время начала"}</TableCell>
+                                <TableCell>{isLaptop ? "Конец" : "Время оканчания"}</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>

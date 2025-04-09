@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Box, ThemeProvider, List, ListItemButton, ListItemIcon, ListItemText, Typography, Button, Icon } from '@mui/material';
+import { Box, ThemeProvider, List, ListItemButton, ListItemIcon, ListItemText, Typography, Button, Icon, useMediaQuery } from '@mui/material';
 import { usePathname, useRouter } from 'next/navigation';
-import '../styles/global.css';
+import '../../styles/global.css';
 import theme from '../styles/theme';
 import { getCurrentUser } from '../api/auth';
 import { Employee } from '../types';
 import { useAuth } from '../context/AuthContext';
 
 const Sidebar: React.FC = () => {
+    const isTablet = useMediaQuery("(max-width:1024px)");
+    const isMobile = useMediaQuery("(max-width:600px)");
+
     const { user, logout, loading, hasRole } = useAuth();
 
     const router = useRouter();
@@ -44,7 +47,7 @@ const Sidebar: React.FC = () => {
 
     return (
         <ThemeProvider theme={theme}>
-            <Box sx={{ width: "315px", height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
+            <Box sx={{ width: isTablet ? "52px" : "330px", height: '92vh', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <List>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                         {menuItems.map((item) => {
@@ -56,17 +59,19 @@ const Sidebar: React.FC = () => {
                                 onClick={() => router.push(item.path)}
                                 sx={{ justifyContent: 'flex-start', gap: 2, 
                                     backgroundColor: isActive ? 'primary.main' : '#EEEEEE',
-                                    color: isActive ? '#FFFFFF' : 'secondary.main', }}
+                                    color: isActive ? '#FFFFFF' : 'secondary.main',
+                                    padding: "15px" }}
                                 >
                                 <ListItemIcon sx={{ color: 'inherit', minWidth: "0px" }}>{item.icon}</ListItemIcon>
-                                <ListItemText primary={item.text} /></ListItemButton>
+                                {!isTablet && <ListItemText primary={item.text} />}
+                                </ListItemButton>
                             ); 
                         })}
                     </Box>
                 </List>
 
                 <Box onClick={logout} sx={{ marginTop: 'auto', display: 'flex', gap: 2, cursor: 'pointer'}}>    
-                    <Typography noWrap sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <Typography noWrap sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: isTablet ? "none" : "block" }}>
                         {`${user?.name} ${user?.surname} ${user?.patronymic}`}
                     </Typography>
                     <img src="/images/exit-icon.svg" alt="Выйти" />

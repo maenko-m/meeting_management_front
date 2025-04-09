@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, ThemeProvider, Tooltip, Grid } from "@mui/material";
+import { Box, Typography, Button, ThemeProvider, Tooltip, Grid, useMediaQuery } from "@mui/material";
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import '../../styles/global.css';
 import theme from '../../styles/theme';
@@ -24,7 +24,13 @@ const timeToMinutes = (time) => {
 };
 
 const Timeline = () => {
-    const hours = Array.from({ length: 17 }, (_, i) => `${String(i + 6).padStart(2, '0')}:00`);
+    const isLaptop = useMediaQuery("(max-width:1440px)");
+    const isTablet2 = useMediaQuery("(max-width:810px)");
+    const isMobile = useMediaQuery("(max-width:600px)");
+
+    const hourStep = isLaptop ? 2 : 1;
+    const hourWidth = 120;
+    const hours = Array.from({ length: Math.ceil(17 / hourStep) }, (_, i) => `${String(i * hourStep + 6).padStart(2, '0')}:00`);
      
     const [rooms, setRooms] = useState<MeetingRoom[]>([]);
     const [offices, setOffices] = useState<Office[]>([]);
@@ -110,106 +116,110 @@ const Timeline = () => {
 
     return (
         <ThemeProvider theme={theme}>
-            <div style={{ width: "96%", padding: "4vh 2%", paddingLeft: "0" }}>
+            <div>
                 {/* Заголовок */}
-                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1em" }}>
-                    <Typography variant='h5'>Таймлайн</Typography>
-                    <Box sx={{ display: "flex", gap: 1 }}>
-                        {officesLoading ? (
-                            <Typography>Загрузка офисов...</Typography>
-                        ) : officesError ? (
-                            <Typography color="error">{officesError}</Typography>
-                        ) : (
-                            offices.map((office) => (
-                            <Button
-                                key={office.id}
-                                variant={office.id === selectedOfficeId ? "contained" : "outlined"}
-                                color={office.id === selectedOfficeId ? "primary" : "secondary"}
-                                onClick={() => handleOfficeChange(office.id)}
-                            >
-                                {office.name}
-                            </Button>
-                            ))
-                        )}
+                <Box sx={{ position: "sticky", top: 0, zIndex: 10 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", marginBottom: "1em", alignItems: isMobile ? "flex-end" : "center", flexDirection: isMobile ? "column" : "row", gap: 1}}>
+                        <Typography variant='h5'>Таймлайн</Typography>
+                        <Box sx={{ display: "flex", gap: 1 }}>
+                            {officesLoading ? (
+                                <Typography>Загрузка офисов...</Typography>
+                            ) : officesError ? (
+                                <Typography color="error">{officesError}</Typography>
+                            ) : (
+                                offices.map((office) => (
+                                <Button
+                                    key={office.id}
+                                    variant={office.id === selectedOfficeId ? "contained" : "outlined"}
+                                    color={office.id === selectedOfficeId ? "primary" : "secondary"}
+                                    onClick={() => handleOfficeChange(office.id)}
+                                >
+                                    {office.name}
+                                </Button>
+                                ))
+                            )}
+                        </Box>
+                    </Box>
+
+                    {/* Переключатель даты */}
+                    <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    border: '1px solid #A3A3A3',
+                    marginBottom: '1em',
+                    width: '100%' }} >
+                        <Button color='secondary' onClick={() => changeDate(-1)}>
+                            <ChevronLeft />
+                        </Button>
+                        <Typography sx={{ textAlign: 'center' }}>
+                            {formatDate(currentDate)}
+                        </Typography>
+                        <Button color='secondary' onClick={() => changeDate(1)}>
+                            <ChevronRight />
+                        </Button>
                     </Box>
                 </Box>
 
-                {/* Переключатель даты */}
-                <Box sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                border: '1px solid #A3A3A3',
-                marginBottom: '1em',
-                width: '100%' }} >
-                    <Button color='secondary' onClick={() => changeDate(-1)}>
-                        <ChevronLeft />
-                    </Button>
-                    <Typography sx={{ textAlign: 'center' }}>
-                        {formatDate(currentDate)}
-                    </Typography>
-                    <Button color='secondary' onClick={() => changeDate(1)}>
-                        <ChevronRight />
-                    </Button>
-                </Box>
-
                 {/* Таймлайн */}
-                    <Box>
-                        <Grid container spacing={0} sx={{ display: "flex", alignItems: "center", background: "#E3E3E3", width: '100%', height: 40, marginBottom: "0.5em" }}>
-                            <Grid item xs={1.5}></Grid>
-                            {hours.map(hour => (
-                            <Grid item xs key={hour}>
-                                <Typography color= "#858585" >{hour}</Typography>
-                            </Grid>
-                            ))}
-                        </Grid>
-                        {dataLoading ? (
-                                <Typography>Загрузка данных...</Typography>
-                            ) : dataError ? (
-                                <Typography color="error">{dataError}</Typography>
-                            ) : (
-                                rooms.map((room, index) => (
-                            <Grid container spacing={0} key={index} alignItems="center" sx={{ width: '100%', '&:nth-of-type(even)': { backgroundColor: '#F4F4F4'}, borderBottom: '1px solid #CCCCCC' }}>
-                                <Grid item xs={1.5}>
-                                    <Typography fontSize="15px" padding="0 10px">{room.name}</Typography>
-                                </Grid>
+                    <Box sx={{ overflowX: 'auto',  width: '100%' }}>
+                        <Box sx={{ width: isTablet2 ? `${hours.length * hourWidth + 200}px` : '100%' }}>
+                            <Grid container spacing={0} sx={{ display: "flex", alignItems: "center", background: "#E3E3E3", width: '100%', height: 40, marginBottom: "0.5em" }}>
+                                <Grid item xs={1.5}></Grid>
                                 {hours.map(hour => (
-                                <Grid item xs key={hour} sx={{ display: "grid", alignItems: "center", borderLeft: '1px solid #CCCCCC', height: 50, position: 'relative' }}>
-                                    {events.filter((event) => event.meetingRoomId === room.id).map((event, i) => {
-                                        if (colorsCount > colors.length) colorsCount = 0;
-                                        const eventStart = timeToMinutes(event.timeStart);
-                                        const eventEnd = timeToMinutes(event.timeEnd);
-                                        const currentHour = timeToMinutes(hour);
-                                        const nextHour = currentHour + 60;
-
-                                        if (eventEnd <= currentHour || eventStart >= nextHour) return null;
-
-                                        const startOffset = Math.max(0, eventStart - currentHour) / 60 * 100;
-                                        const endOffset = Math.min(60, eventEnd - currentHour) / 60 * 100;
-
-                                        return (
-                                            <Tooltip key={i} title={`${event.timeStart} - ${event.timeEnd} ${event.name}`} arrow>
-                                                <Box
-                                                key={i}
-                                                sx={{
-                                                position: 'absolute',
-                                                top: `5`,
-                                                left: `${startOffset}%`,
-                                                width: `${endOffset - startOffset}%`,
-                                                height: '50%',
-                                                backgroundColor: colors[colorsCount++],
-                                                transition: 'height 0.3s ease-in-out',
-                                                '&:hover': {
-                                                    height: '100%',
-                                                }
-                                                }}/>
-                                            </Tooltip>
-                                        );
-                                    })}
+                                <Grid item xs key={hour}>
+                                    <Typography color= "#858585" >{hour}</Typography>
                                 </Grid>
                                 ))}
                             </Grid>
-                        )))}
+                            {dataLoading ? (
+                                    <Typography>Загрузка данных...</Typography>
+                                ) : dataError ? (
+                                    <Typography color="error">{dataError}</Typography>
+                                ) : (
+                                    rooms.map((room, index) => (
+                                <Grid container spacing={0} key={index} alignItems="center" sx={{ width: '100%', '&:nth-of-type(even)': { backgroundColor: '#F4F4F4'}, borderBottom: '1px solid #CCCCCC' }}>
+                                    <Grid item xs={1.5}>
+                                        <Typography fontSize="15px" padding="0 10px">{room.name}</Typography>
+                                    </Grid>
+                                    {hours.map(hour => (
+                                    <Grid item xs key={hour} sx={{ display: "grid", alignItems: "center", borderLeft: '1px solid #CCCCCC', height: 50, position: 'relative' }}>
+                                        {events.filter((event) => event.meetingRoomId === room.id).map((event, i) => {
+                                            if (colorsCount > colors.length) colorsCount = 0;
+                                            const eventStart = timeToMinutes(event.timeStart);
+                                            const eventEnd = timeToMinutes(event.timeEnd);
+                                            const currentHour = timeToMinutes(hour);
+                                            const nextHour = currentHour + 60 * hourStep;
+
+                                            if (eventEnd <= currentHour || eventStart >= nextHour) return null;
+
+                                            const startOffset = Math.max(0, eventStart - currentHour) / (60 * hourStep) * 100;
+                                            const endOffset = Math.min(60, eventEnd - currentHour) / (60 * hourStep) * 100;
+
+                                            return (
+                                                <Tooltip key={i} title={`${event.timeStart} - ${event.timeEnd} ${event.name}`} arrow>
+                                                    <Box
+                                                    key={i}
+                                                    sx={{
+                                                    position: 'absolute',
+                                                    top: `5`,
+                                                    left: `${startOffset}%`,
+                                                    width: `${endOffset - startOffset}%`,
+                                                    height: '50%',
+                                                    backgroundColor: colors[colorsCount++],
+                                                    transition: 'height 0.3s ease-in-out',
+                                                    '&:hover': {
+                                                        height: '100%',
+                                                    }
+                                                    }}/>
+                                                </Tooltip>
+                                            );
+                                        })}
+                                    </Grid>
+                                    ))}
+                                </Grid>
+                            )))}
+                        </Box>
                     </Box>
             </div>
         </ThemeProvider>

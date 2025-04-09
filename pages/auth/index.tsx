@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { TextField, Button, Typography, Dialog } from '@mui/material';
 import { Box, ThemeProvider } from '@mui/system';
 import { useRouter } from 'next/router';
-import '../../styles/global.css';
+
 import theme from '../../styles/theme';
 import { login as apiLogin } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';

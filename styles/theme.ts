@@ -17,12 +17,19 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           fontSize: "14px",
-          padding: "13px 13px",
+          padding: "15px 15px",
           boxShadow: 'none',
           borderRadius: "0",
         },
       },
     },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: "0",
+        },
+      },
+    }, 
     MuiTab: {
       styleOverrides: {
         root: {
