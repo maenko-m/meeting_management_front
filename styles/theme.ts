@@ -11,7 +11,12 @@ const theme = createTheme({
   },
   typography: {
     fontFamily: 'Mont, sans-serif',
-  },
+  },/*
+  typography: {
+    t1: { fontSize: '24px', fontWeight: 700, color: '#000000' },
+    t2: { fontSize: '18px', fontWeight: 500, color: '#333333' },
+    t3: { fontSize: '14px', fontWeight: 400, color: '#666666' },
+  },*/
   components: {
     MuiButton: {
       styleOverrides: {

@@ -127,15 +127,15 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
 
     useEffect(() => {
         const loadRooms = async () => {
-        try {
-            const data = await fetchMeetingRooms();
-            setRooms(data.data);
-        } catch (err) {
-            showNotification(
-                "Не удалось загрузить комнаты",
-                'error'
-            );
-        }
+            try {
+                const data = await fetchMeetingRooms();
+                setRooms(data.data);
+            } catch (err) {
+                showNotification(
+                    "Не удалось загрузить комнаты",
+                    'error'
+                );
+            }
         };
         loadRooms();
     }, [showNotification]);
@@ -171,7 +171,6 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
     useEffect(() => {
 
         loadEvents();
-        console.log(value);
     }, [value, nameFilter, roomId, descOrder, page, limit]);
 
     const handlePageChange = (event: React.ChangeEvent<unknown>, newPage: number) => {
@@ -248,7 +247,14 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
                                 <TableCell />
                                 <TableCell>Наименование</TableCell>
                                 <TableCell>{isLaptop ? "Перег. комната" : "Переговорная комната"}</TableCell>
-                                <TableCell>Дата</TableCell>
+                                <TableCell>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setDescOrder(!descOrder)}>
+                                            <Typography variant="inherit">Дата</Typography>
+                                            <IconButton size="small" sx={{ ml: 0.5 }}>
+                                                {descOrder ? <KeyboardArrowDown fontSize="small" /> : <KeyboardArrowUp fontSize="small" />}
+                                            </IconButton>
+                                        </Box>
+                                </TableCell>
                                 <TableCell>{isLaptop ? "Начало" : "Время начала"}</TableCell>
                                 <TableCell>{isLaptop ? "Конец" : "Время оканчания"}</TableCell>
                                 <TableCell align="center" sx={{ padding: "0" }}>
@@ -336,11 +342,11 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
                                         </Box>
                                         <Box sx={{ paddingBottom: 1 }}>
                                             <Typography color="#858585" sx={{ backgroundColor: "#E3E3E3", padding: 1 }}>
-                                            Участники
+                                                Участники
                                             </Typography>
-                                            <Typography sx={{ backgroundColor: "#F4F4F4", padding: 1 }}>
-                                            {event.employees.map((emp) => emp.fullName).join(", ")}
-                                            </Typography>
+                                            {event.employees.map(employee => {
+                                                return <Typography sx={{ backgroundColor: '#F4F4F4', padding: 1 }}>{employee.fullName}</Typography>
+                                            })}
                                         </Box>
                                         </Box>
                                     </Collapse>
@@ -426,11 +432,11 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
                                             </Box>
                                             <Box sx={{ paddingBottom: 1 }}>
                                                 <Typography color="#858585" sx={{ backgroundColor: "#E3E3E3", padding: 1 }}>
-                                                Участники
+                                                    Участники
                                                 </Typography>
-                                                <Typography sx={{ backgroundColor: "#F4F4F4", padding: 1 }}>
-                                                {event.employees.map((emp) => emp.fullName).join(", ")}
-                                                </Typography>
+                                                {event.employees.map(employee => {
+                                                    return <Typography sx={{ backgroundColor: '#F4F4F4', padding: 1 }}>{employee.fullName}</Typography>
+                                                })}
                                             </Box>
                                             </Box>
                                         </Collapse>

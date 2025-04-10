@@ -51,8 +51,6 @@ interface EventFormProps {
   idEvent?: number | null;
 }
 
-const currentEvent = { id: 3, name: 'Новое', date: '2025-03-25', timeStart: '10:45', timeEnd: '13:00', idRoom: 1 };
-
 const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEvent }) => {
   const [eventName, setEventName] = useState("");
   const [eventDesc, setEventDesc] = useState("");
@@ -60,6 +58,7 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
   const [eventRoomId, setEventRoomId] = useState<number | null>(null);
   const [selectedUsers, setSelectedUsers] = useState<Employee[]>([]);
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
+  const [timeLineDate, setTimeLineDate]  = useState<Dayjs | null>(selectedDate);
   const [selectedTimeStart, setSelectedTimeStart] = useState<Dayjs | null>(dayjs());
   const [selectedTimeEnd, setSelectedTimeEnd] = useState<Dayjs | null>(dayjs());
   const [selectedTimeZone, setSelectedTimeZone] = useState<number>(0);
@@ -74,6 +73,8 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
   const { showNotification } = useNotification()
 
   const isOverSize = selectedUsers.length > selectedSize;
+
+  const currentEvent = { date: selectedDate!, timeStart: selectedTimeStart!, timeEnd: selectedTimeEnd!, idRoom: eventRoomId!};
 
   useEffect(() => {
     const loadData = async () => {
@@ -142,6 +143,12 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
       setAccess(selectedRoom.isPublic ? "public" : "private");
       setSelectedUsers(selectedRoom.employees);
       setAutocompleteDisabled(selectedRoom.employees.length > 0);
+    }
+  };
+
+  const handleChangeTimeLineDate = (value: dayjs.Dayjs | null) => {
+    if (value) {
+      setTimeLineDate(value);
     }
   };
 
@@ -482,12 +489,13 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
                             </IconButton>
                             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
                               <DatePicker
-                                value={selectedDate}
+                                value={timeLineDate}
                                 slots={{ textField: TextField }}
                                 format='dddd, D MMMM'
                                 open={openRoomCalendar} 
                                 onOpen={() => setOpenRoomCalendar(true)} 
                                 onClose={() => setOpenRoomCalendar(false)} 
+                                onChange={handleChangeTimeLineDate}
                                 slotProps={{
                                   textField: {
                                     onClick: () => setOpenRoomCalendar(true),
@@ -520,7 +528,7 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
                             </IconButton>
                           </Box>
                           <Box sx={{display: "flex", height: '150px', border: '#A3A3A3 1px solid', padding: '20px', background: '#F4F4F4'}}>
-                            <MeetingRoomTimeline events={events} currentEvent={currentEvent} />
+                              <MeetingRoomTimeline date={timeLineDate!.format('YYYY-MM-DD')} roomId={eventRoomId!} currentEvent={currentEvent} />
                           </Box>
                       </Box>
                   </Box>

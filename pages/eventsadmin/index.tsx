@@ -217,7 +217,14 @@ const EventsAdmin: React.FC<EventsProps> = ({ disableRoomElements = false, idRoo
                                 <TableCell />
                                 <TableCell>Наименование</TableCell>
                                 <TableCell>{isLaptop ? "Перег. комната" : "Переговорная комната"}</TableCell>
-                                <TableCell>Дата</TableCell>
+                                <TableCell>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setDescOrder(!descOrder)}>
+                                            <Typography variant="inherit">Дата</Typography>
+                                            <IconButton size="small" sx={{ ml: 0.5 }}>
+                                                {descOrder ? <KeyboardArrowDown fontSize="small" /> : <KeyboardArrowUp fontSize="small" />}
+                                            </IconButton>
+                                        </Box>
+                                </TableCell>
                                 <TableCell>{isLaptop ? "Начало" : "Время начала"}</TableCell>
                                 <TableCell>{isLaptop ? "Конец" : "Время оканчания"}</TableCell>
                                 <TableCell align="center" sx={{ padding: "0" }}>
