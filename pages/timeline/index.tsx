@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button, ThemeProvider, Tooltip, Grid, useMediaQuery } from "@mui/material";
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
-import '../../styles/global.css';
+
 import theme from '../../styles/theme';
 import { Event, MeetingRoom, Office } from '../../types';
 import { fetchOffices } from "../../api/offices";

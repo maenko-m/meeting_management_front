@@ -26,8 +26,7 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import dayjs, { Dayjs } from "dayjs";
 import "dayjs/locale/ru"; 
 import { Box, ThemeProvider } from '@mui/system';
-import '../styles/global.css';
-import '../styles/AddEventFrom.css';
+
 import theme from '../styles/theme';
 import MeetingRoomTimeline from './MeetingRoomTimeLine';
 import { Employee, MeetingRoom, Office, Event, EventCreate } from '../types';

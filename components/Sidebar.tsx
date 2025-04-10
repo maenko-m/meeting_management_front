@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Box, ThemeProvider, List, ListItemButton, ListItemIcon, ListItemText, Typography, Button, Icon, useMediaQuery } from '@mui/material';
+import { Box, ThemeProvider, List, ListItemButton, ListItemIcon, ListItemText, Typography, Button, Icon, useMediaQuery, IconButton,} from '@mui/material';
 import { usePathname, useRouter } from 'next/navigation';
-import '../styles/global.css';
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
+
 import theme from '../styles/theme';
 import { getCurrentUser } from '../api/auth';
 import { Employee } from '../types';
@@ -15,6 +17,8 @@ const Sidebar: React.FC = () => {
 
     const router = useRouter();
     const pathname = usePathname();
+
+    const [open, setOpen] = useState(false);
 
     const menuItems = [
         {   
@@ -47,36 +51,77 @@ const Sidebar: React.FC = () => {
 
     return (
         <ThemeProvider theme={theme}>
-            <Box sx={{ width: isTablet ? "52px" : "330px", height: '92vh', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <List>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            { isMobile ? (
+                <Box sx={{ width: "45px", background: '#FFFFFF', border: open ? '1px solid #A3A3A3' : 'none', marginLeft: "2%", marginTop: "3vh", position: "absolute", top: 0, left: 0, right: 0, zIndex: 1400 }}>
+                    <Box>
+                    <IconButton
+                        onClick={() => setOpen(!open)}
+                        sx={{ p: '10px' }}
+                    >
+                        {open ? <CloseIcon /> : <MenuIcon />}
+                    </IconButton>
+                    </Box>
+                    {open && (
+                    <List sx={{ display: 'flex', flexDirection: 'column', gap: 1, }}>
                         {menuItems.map((item) => {
                             const isActive = pathname === item.path;
-
-                            return(
+                            return (
                                 <ListItemButton
                                 key={item.path}
-                                onClick={() => router.push(item.path)}
-                                sx={{ justifyContent: 'flex-start', gap: 2, 
+                                onClick={() => {
+                                    router.push(item.path);
+                                    setOpen(false);
+                                }}
+                                sx={{
+                                    justifyContent: 'flex-start',
                                     backgroundColor: isActive ? 'primary.main' : '#EEEEEE',
                                     color: isActive ? '#FFFFFF' : 'secondary.main',
-                                    padding: "15px" }}
+                                    padding: '12px',
+                                }}
                                 >
-                                <ListItemIcon sx={{ color: 'inherit', minWidth: "0px" }}>{item.icon}</ListItemIcon>
-                                {!isTablet && <ListItemText primary={item.text} />}
+                                <ListItemIcon sx={{ color: 'inherit', minWidth: '0px' }}>{item.icon}</ListItemIcon>
                                 </ListItemButton>
-                            ); 
+                            );
                         })}
-                    </Box>
-                </List>
-
-                <Box onClick={logout} sx={{ marginTop: 'auto', display: 'flex', gap: 2, cursor: 'pointer'}}>    
-                    <Typography noWrap sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: isTablet ? "none" : "block" }}>
-                        {`${user?.name} ${user?.surname} ${user?.patronymic}`}
-                    </Typography>
-                    <img src="/images/exit-icon.svg" alt="Выйти" />
+                        <Box onClick={logout} sx={{ paddingLeft: "15px", paddingTop: "12px" }}>    
+                            <img src="/images/exit-icon.svg" alt="Выйти" />
+                        </Box>
+                    </List>
+                    )}
                 </Box>
-            </Box>
+            ) : (
+                <Box sx={{ width: isTablet ? "52px" : "330px", height: '92vh', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <List>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            {menuItems.map((item) => {
+                                const isActive = pathname === item.path;
+
+                                return(
+                                    <ListItemButton
+                                    key={item.path}
+                                    onClick={() => router.push(item.path)}
+                                    sx={{ justifyContent: 'flex-start', gap: 2, 
+                                        backgroundColor: isActive ? 'primary.main' : '#EEEEEE',
+                                        color: isActive ? '#FFFFFF' : 'secondary.main',
+                                        padding: "15px" }}
+                                    >
+                                    <ListItemIcon sx={{ color: 'inherit', minWidth: "0px" }}>{item.icon}</ListItemIcon>
+                                    {!isTablet && <ListItemText primary={item.text} />}
+                                    </ListItemButton>
+                                ); 
+                            })}
+                        </Box>
+                    </List>
+
+                    <Box onClick={logout} sx={{ marginTop: 'auto', display: 'flex', gap: 2, cursor: 'pointer'}}>    
+                        <Typography noWrap sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: isTablet ? "none" : "block" }}>
+                            {`${user?.name} ${user?.surname} ${user?.patronymic}`}
+                        </Typography>
+                        <img src="/images/exit-icon.svg" alt="Выйти" />
+                    </Box>
+                </Box>
+            )}
+            
         </ThemeProvider>
     );
 };

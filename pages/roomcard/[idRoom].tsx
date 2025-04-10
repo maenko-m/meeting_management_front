@@ -14,8 +14,7 @@ import {
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import React, { useRef, useState, useEffect } from "react";
-import '../../styles/global.css';
-import '../../styles/MeetingRoomCardStyles.css';
+
 import theme from '../../styles/theme';
 import { motion } from "framer-motion";
 import { useRouter } from 'next/router';
