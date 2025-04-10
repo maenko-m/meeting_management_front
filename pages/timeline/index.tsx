@@ -148,7 +148,8 @@ const Timeline = () => {
                     alignItems: 'center',
                     border: '1px solid #A3A3A3',
                     marginBottom: '1em',
-                    width: '100%' }} >
+                    width: '100%',
+                    boxSizing: 'border-box' }} >
                         <Button color='secondary' onClick={() => changeDate(-1)}>
                             <ChevronLeft />
                         </Button>
@@ -185,7 +186,7 @@ const Timeline = () => {
                                     {hours.map(hour => (
                                     <Grid item xs key={hour} sx={{ display: "grid", alignItems: "center", borderLeft: '1px solid #CCCCCC', height: 50, position: 'relative' }}>
                                         {events.filter((event) => event.meetingRoomId === room.id).map((event, i) => {
-                                            if (colorsCount > colors.length) colorsCount = 0;
+                                            if (colorsCount >= colors.length) colorsCount = 0;
                                             const eventStart = timeToMinutes(event.timeStart);
                                             const eventEnd = timeToMinutes(event.timeEnd);
                                             const currentHour = timeToMinutes(hour);

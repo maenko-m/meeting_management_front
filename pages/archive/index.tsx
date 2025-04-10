@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Box, ThemeProvider, TextField, Button, Checkbox, FormControlLabel, Select, MenuItem, Typography, TableContainer, Table, TableHead, TableRow, TableCell, Paper, IconButton, Menu, Collapse, TableBody, useMediaQuery, Stack, Pagination } from "@mui/material";
-import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
+
+import { ArrowDownward, ArrowUpward, KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
+import '../../styles/global.css';
 
 import theme from '../../styles/theme';
 import { fetchOffices } from "../../api/offices";
@@ -277,8 +279,16 @@ const ProfilePage = () => {
                                 <TableRow>
                                     <TableCell />
                                     <TableCell>Наименование</TableCell>
+
                                     <TableCell sx={{ whiteSpace: "nowrap" }} >{isLaptop ? "Перег. комната" : "Переговорная комната"}</TableCell>
-                                    <TableCell>Дата</TableCell>
+                                    <TableCell>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setDescOrder(!descOrder)}>
+                                            <Typography variant="inherit">Дата</Typography>
+                                            <IconButton size="small" sx={{ ml: 0.5 }}>
+                                                {descOrder ? <KeyboardArrowDown fontSize="small" /> : <KeyboardArrowUp fontSize="small" />}
+                                            </IconButton>
+                                        </Box>
+                                    </TableCell>
                                     <TableCell>{isLaptop ? "Начало" : "Время начала"}</TableCell>
                                     <TableCell>{isLaptop ? "Конец" : "Время оканчания"}</TableCell>
                                     <TableCell align="center" >
@@ -343,7 +353,9 @@ const ProfilePage = () => {
                                                     </Box>
                                                     <Box sx={{ paddingBottom: 1 }}>
                                                         <Typography color='#858585' sx={{ backgroundColor: '#E3E3E3', padding: 1 }}>Участники</Typography>
-                                                        <Typography sx={{ backgroundColor: '#F4F4F4', padding: 1 }}>{event.employees?.join(', ')}</Typography>
+                                                        {event.employees.map(employee => {
+                                                            return <Typography sx={{ backgroundColor: '#F4F4F4', padding: 1 }}>{employee.fullName}</Typography>
+                                                        })}
                                                     </Box>
                                                 </Box>
                                             </Collapse>
