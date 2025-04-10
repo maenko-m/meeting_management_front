@@ -58,8 +58,8 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
   const [selectedUsers, setSelectedUsers] = useState<Employee[]>([]);
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
   const [timeLineDate, setTimeLineDate]  = useState<Dayjs | null>(selectedDate);
-  const [selectedTimeStart, setSelectedTimeStart] = useState<Dayjs | null>(dayjs());
-  const [selectedTimeEnd, setSelectedTimeEnd] = useState<Dayjs | null>(dayjs());
+  const [selectedTimeStart, setSelectedTimeStart] = useState<Dayjs | null>(dayjs().set('hour', 6).set('minute', 0).set('second', 0));
+  const [selectedTimeEnd, setSelectedTimeEnd] = useState<Dayjs | null>(dayjs().set('hour', 6).set('minute', 30).set('second', 0));
   const [selectedTimeZone, setSelectedTimeZone] = useState<number>(0);
   const [selectedSize, setSelectedSize] = useState<number>(0);
   const [openRoomCalendar, setOpenRoomCalendar] = useState(false);
@@ -70,6 +70,12 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
   const [rooms, setRooms] = useState<MeetingRoom[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const { showNotification } = useNotification()
+
+  const [isOverlapping, setIsOverlapping] = useState(false);
+  
+  const handleOverlapCheck = (overlap: boolean) => {
+    setIsOverlapping(overlap);
+  };
 
   const isOverSize = selectedUsers.length > selectedSize;
 
@@ -476,14 +482,18 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
                     </Box>
                   </Box>
                   <Box sx={{display: "flex", flexDirection: "column", gap: 0.5}}>
-                      <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                        Занятость комнаты
-                      </Typography>
+                      <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                          Занятость комнаты
+                        </Typography>
+                        {isOverlapping && (<Typography color="error">Событие пересекается с существующими</Typography>)}
+                      </Box>
                       <Box sx={{display: "flex", flexDirection: "column", gap: 0.5}}>
                           <Box sx={{display: "flex",  gap: 1.5, height: '40px', border: '#A3A3A3 1px solid', alignItems: 'center', justifyContent: 'center'}}>
                             <IconButton
                               color="secondary"
-                              sx={{ backgroundColor: "#eee", padding: '4px' }}>
+                              sx={{ backgroundColor: "#eee", padding: '4px' }}
+                              onClick={() => setTimeLineDate(timeLineDate!.add(-1, 'day'))}>
                               <ArrowBackIosNewIcon fontSize='small'/>
                             </IconButton>
                             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
@@ -522,12 +532,17 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
                             </LocalizationProvider>
                             <IconButton
                               color="secondary"
-                              sx={{ backgroundColor: "#eee", padding: '4px'}}>
+                              sx={{ backgroundColor: "#eee", padding: '4px'}}
+                              onClick={() => setTimeLineDate(timeLineDate!.add(1, 'day'))}>
                               <ArrowForwardIosIcon fontSize='small'/>
                             </IconButton>
                           </Box>
                           <Box sx={{display: "flex", height: '150px', border: '#A3A3A3 1px solid', padding: '20px', background: '#F4F4F4'}}>
-                              <MeetingRoomTimeline date={timeLineDate!.format('YYYY-MM-DD')} roomId={eventRoomId!} currentEvent={currentEvent} />
+                              <MeetingRoomTimeline 
+                                date={timeLineDate!.format('YYYY-MM-DD')} 
+                                roomId={eventRoomId!} 
+                                currentEvent={currentEvent} 
+                                onOverlapCheck={handleOverlapCheck}/>
                           </Box>
                       </Box>
                   </Box>

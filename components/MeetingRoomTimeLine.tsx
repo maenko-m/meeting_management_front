@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Box, Tooltip, Typography } from '@mui/material';
 import { fetchEvents } from '../api/events';
 import { Event } from '../types'
 import { useNotification } from '../context/NotificationContext';
-import { Dayjs } from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
+import { hasOverlap } from '../utils/eventUtils';
+import { calculateEventPosition } from '../utils/eventUtils';
 
 interface CurrentEvent {
   date: Dayjs;
@@ -19,22 +21,32 @@ const colors = [
     'rgba(50, 122, 255, 0.7)',
     'rgba(42, 200, 71, 0.7)',
 ];
-
 let colorsCount = 0;
 
 const timeMarks = ['6:00', '10:00', '14:00', '18:00', '22:00'];
 
-const MeetingRoomTimeline: React.FC<{ date: string, roomId: number, currentEvent: CurrentEvent }> = ({ date, roomId, currentEvent }) => {
+interface MeetingRoomTimelineProps {
+  date: string;
+  roomId: number;
+  currentEvent: CurrentEvent;
+  onOverlapCheck: (overlap: boolean) => void; 
+}
 
-  const timeToMinutes = (time: string): number => {
-    const [hours, minutes] = time.split(':').map(Number);
-    return hours * 60 + minutes;
-  };
+const MeetingRoomTimeline: React.FC<MeetingRoomTimelineProps> = ({
+  date,
+  roomId,
+  currentEvent,
+  onOverlapCheck,
+}) => {
 
   const { showNotification } = useNotification()
 
   const [events, setEvents] = useState<Event[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
+
+  const [timelineWidth, setTimelineWidth] = useState<number>(0);
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const [isElementLoaded, setIsElementLoaded] = useState<boolean>(false);
 
   const loadEvents = async () => {
     try {
@@ -48,7 +60,6 @@ const MeetingRoomTimeline: React.FC<{ date: string, roomId: number, currentEvent
       };
       const data = await fetchEvents(filters);
       setEvents(data.data);
-      console.log(data.data);
     } catch (err) {
         showNotification(
             "Не удалось загрузить мероприятия",
@@ -63,14 +74,46 @@ const MeetingRoomTimeline: React.FC<{ date: string, roomId: number, currentEvent
     loadEvents();
   }, [date, roomId]);
 
-  const totalMinutes = timeToMinutes('22:00') - timeToMinutes('6:00');
+
+  useEffect(() => {
+    const checkElementLoaded = () => {
+      if (timelineRef.current) {
+        const width = timelineRef.current.getBoundingClientRect().width;
+        console.log('Ширина элемента:', width);
+        if (width > 0) {
+          setTimelineWidth(width);
+          setIsElementLoaded(true); 
+        }
+      } 
+    };
+
+    checkElementLoaded();
+
+    if (!isElementLoaded) {
+      const interval = setInterval(checkElementLoaded, 100); 
+      return () => clearInterval(interval);
+    }
+
+    const handleResize = () => {
+      checkElementLoaded();
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isElementLoaded]);
+
+  useEffect(() => {
+    const overlap = hasOverlap(currentEvent, events);
+    onOverlapCheck(overlap); 
+  }, [currentEvent, events, onOverlapCheck]);
 
   if (eventsLoading) {
     return <Typography align="center">Загрузка...</Typography>
   }
 
   return (
-    <Box sx={{ position: "relative", height: "100%", width: "100%", display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+    
+    <Box ref={timelineRef} sx={{ position: "relative", height: "100%", width: "100%", display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center' }}>
       <Box //ось
         sx={{
           position: "absolute",
@@ -92,40 +135,40 @@ const MeetingRoomTimeline: React.FC<{ date: string, roomId: number, currentEvent
         }}
       >
         {timeMarks.map((mark, index) => (
-          <Box
-            key={index}
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              position: "relative",
-            }}
-          >
-            <Box //черточки
-              sx={{
-                width: "4px",
-                height: "14px",
-                backgroundColor: "#333333",
-                position: "absolute",
-                zIndex: 10,
-                top: "-29px", // смещение вверх от оси
-              }}
-            />
-            <Typography variant="caption">{mark}</Typography>
-          </Box>
+            <Typography key={index} variant="caption">{mark}</Typography> //метки времени
         ))}
       </Box>
-      <Box sx={{display: 'flex', gap: 1, alignItems: 'center', justifyContent: 'flex-end'}}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          position: "absolute",
+          bottom: 0,
+          width: "calc(100% - 10px * 2)",
+          top: '58.5px',
+          zIndex: 10,
+        }}
+      >
+        {timeMarks.map((mark, index) => (
+            <Box //черточки
+            key={index}
+            sx={{
+              width: "4px",
+              height: "14px",
+              backgroundColor: "#333333",
+            }}
+          />
+        ))}
+      </Box>
+
+      <Box sx={{display: 'flex', gap: 1, alignItems: 'center', justifyContent: 'flex-end', width: '100%'}}>
         <Box sx={{width: '10px', height: '10px', backgroundColor: 'rgba(149, 50, 255, 0.7)'}}/>
         <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>Ваше мероприятие</Typography>
       </Box>
 
-      {events.map((event) => {
+      {isElementLoaded && events.map((event) => {
+        const { left, width } = calculateEventPosition(event.timeStart, event.timeEnd, timelineWidth);
         if (colorsCount >= colors.length) colorsCount = 0;
-        const startMinutes = timeToMinutes(event.timeStart) - timeToMinutes("6:00");
-        const endMinutes = timeToMinutes(event.timeEnd) - timeToMinutes("6:00");
-        const left = (startMinutes / totalMinutes) * 100 + "%"; 
-        const width = ((endMinutes - startMinutes) / totalMinutes) * 100 + "%"; 
 
         return (
           <Tooltip
@@ -133,7 +176,7 @@ const MeetingRoomTimeline: React.FC<{ date: string, roomId: number, currentEvent
             title={
               <Box>
                 <Typography variant="body2">{event.name}</Typography>
-                <Typography variant="body2">{`${event.timeStart} - ${event.timeEnd}`}</Typography>
+                <Typography variant="body2">{`${event.timeStart.slice(0, 5)} - ${event.timeEnd.slice(0, 5)}`}</Typography>
               </Box>
             }
             arrow
@@ -156,11 +199,12 @@ const MeetingRoomTimeline: React.FC<{ date: string, roomId: number, currentEvent
           </Tooltip>
         );
       })}
-      <Tooltip
+      
+      {isElementLoaded && (<Tooltip
         title={
           <Box>
             <Typography variant="body2">Текущее мероприятие</Typography>
-            <Typography variant="body2">{`${currentEvent.timeStart} - ${currentEvent.timeEnd}`}</Typography>
+            <Typography variant="body2">{`${currentEvent.timeStart.format('HH:mm')} - ${currentEvent.timeEnd.format('HH:mm')}`}</Typography>
           </Box>
         }
         arrow
@@ -168,8 +212,8 @@ const MeetingRoomTimeline: React.FC<{ date: string, roomId: number, currentEvent
             <Box
               sx={{
                 position: "absolute",
-                left: `${((timeToMinutes(currentEvent.timeStart.format('HH:mm:ss')) - timeToMinutes("6:00")) / totalMinutes) * 100}%`,
-                width: `${(((timeToMinutes(currentEvent.timeEnd.format('HH:mm:ss')) - timeToMinutes("6:00")) - (timeToMinutes(currentEvent.timeStart.format('HH:mm:ss')) - timeToMinutes("6:00"))) / totalMinutes) * 100}%`,
+                left: `${calculateEventPosition(currentEvent.timeStart.format('HH:mm:ss'), currentEvent.timeEnd.format('HH:mm:ss'), timelineWidth).left}px`,
+                width: `${calculateEventPosition(currentEvent.timeStart.format('HH:mm:ss'), currentEvent.timeEnd.format('HH:mm:ss'), timelineWidth).width}px`,
                 height: "20px",
                 backgroundColor: 'rgba(149, 50, 255, 0.7)',
                 bottom: "calc(50% - 10px)", 
@@ -180,7 +224,7 @@ const MeetingRoomTimeline: React.FC<{ date: string, roomId: number, currentEvent
                 },
               }}
             />
-        </Tooltip>
+        </Tooltip>)}
     </Box>
   );
 };
