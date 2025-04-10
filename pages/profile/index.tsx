@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, ThemeProvider, TextField, Button, Checkbox, FormControlLabel, Select, MenuItem, Typography, TableContainer, Table, TableHead, TableRow, TableCell, Paper, IconButton, Menu, Collapse, TableBody, SelectChangeEvent, useMediaQuery } from "@mui/material";
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
-import '../../styles/global.css';
+
 import theme from '../../styles/theme';
 import { fetchOffices } from "../../api/offices";
 import { Employee, Office } from "../../types";

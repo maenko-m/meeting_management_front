@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Select, MenuItem, Button, ThemeProvider, useMediaQuery, Stack, Pagination } from "@mui/material";
-import '../../styles/global.css';
+
 import theme from '../../styles/theme';
 import { MeetingRoom, Office } from "../../types";
 import { fetchMeetingRooms } from "../../api/meetingRooms";
@@ -201,7 +201,7 @@ const MeetingRooms = () => {
                             <TableCell>Офис</TableCell>
                             <TableCell>Статус</TableCell>
                             <TableCell>Доступность</TableCell>
-                            <TableCell>{isLaptop ? "чел." : "Емкость, чел."}</TableCell>
+                            <TableCell>{isLaptop ? "Чел." : "Емкость, чел."}</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
