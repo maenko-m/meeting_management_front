@@ -79,7 +79,6 @@ const MeetingRoomTimeline: React.FC<MeetingRoomTimelineProps> = ({
     const checkElementLoaded = () => {
       if (timelineRef.current) {
         const width = timelineRef.current.getBoundingClientRect().width;
-        console.log('Ширина элемента:', width);
         if (width > 0) {
           setTimelineWidth(width);
           setIsElementLoaded(true); 

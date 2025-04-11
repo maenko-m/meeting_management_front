@@ -26,7 +26,6 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import dayjs, { Dayjs } from "dayjs";
 import "dayjs/locale/ru"; 
 import { Box, ThemeProvider } from '@mui/system';
-
 import theme from '../styles/theme';
 import MeetingRoomTimeline from './MeetingRoomTimeLine';
 import { Employee, MeetingRoom, Office, Event, EventCreate } from '../types';
@@ -35,6 +34,8 @@ import { fetchMeetingRooms } from "../api/meetingRooms";
 import { fetchEmployees } from "../api/employees";
 import { createEvent, updateEvent } from "../api/events";
 import { useNotification } from '../context/NotificationContext';
+import { useAuth } from '../context/AuthContext';
+import RepeatDialog from './RepeatDialog';
 
 
 const events = [
@@ -48,6 +49,12 @@ interface EventFormProps {
   mode: "create" | "edit";
   event?: EventCreate | null;
   idEvent?: number | null;
+}
+
+interface RepeatSettings {
+  repeatType: 'day' | 'week' | 'month' | 'year';
+  frequency: number;
+  endDate: string; 
 }
 
 const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEvent }) => {
@@ -77,9 +84,33 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
     setIsOverlapping(overlap);
   };
 
+  const { user } = useAuth();
+
   const isOverSize = selectedUsers.length > selectedSize;
 
   const currentEvent = { date: selectedDate!, timeStart: selectedTimeStart!, timeEnd: selectedTimeEnd!, idRoom: eventRoomId!};
+
+  const [isRepeatChecked, setIsRepeatChecked] = useState(false);
+  const [repeatSettings, setRepeatSettings] = useState<RepeatSettings | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const handleCheckboxClick = () => {
+    if (isRepeatChecked) {
+      setIsRepeatChecked(false);
+      return;
+    }
+    setIsRepeatChecked(true);
+    setDialogOpen(true);
+  };
+
+  const handleSaveRepeat = (settings: RepeatSettings) => {
+    setRepeatSettings(settings);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+  };
+
 
   useEffect(() => {
     const loadData = async () => {
@@ -187,9 +218,12 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
       date: selectedDate.format("YYYY-MM-DD"),
       timeStart: selectedTimeStart.format("HH:mm:ss"),
       timeEnd: selectedTimeEnd.format("HH:mm:ss"),
-      authorId: 4, 
+      authorId: user!.id, 
       meetingRoomId: eventRoomId,
       employeeIds: selectedUsers.map((user) => user.id),
+      recurrenceType: repeatSettings?.repeatType,
+      recurrenceInterval: repeatSettings?.frequency,
+      recurrenceEnd: repeatSettings?.endDate,
     };
 
     try {
@@ -474,11 +508,27 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
                         />
                       </LocalizationProvider>
                     </Box>
-                    <Box sx={{display: "flex", alignItems: 'center'}}>
-                      <Checkbox />
-                      <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                        Повторять
-                      </Typography>
+                    <Box sx={{display: (mode === 'edit') ? 'none' : 'flex', alignItems: 'center'}}>
+                        <Box
+                          sx={{ display: 'flex', alignItems: 'center' }}
+                        >
+                          <Checkbox checked={isRepeatChecked} onClick={handleCheckboxClick}/>
+                          <Box sx={{display: 'flex', flexDirection: 'column',}}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                              Повторять
+                            </Typography>
+                            <Typography variant="body1" color='primary' onClick={() => setDialogOpen(true)} sx={{display: (!isRepeatChecked) ? 'none' : 'block', cursor: 'pointer' }}>
+                              Изменить
+                            </Typography>
+                          </Box>
+                          
+                        </Box>
+                        <RepeatDialog
+                          open={dialogOpen}
+                          onClose={handleCloseDialog}
+                          onSave={handleSaveRepeat}
+                          initialSettings={repeatSettings} 
+                        />
                     </Box>
                   </Box>
                   <Box sx={{display: "flex", flexDirection: "column", gap: 0.5}}>
