@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Box, ThemeProvider, List, ListItemButton, ListItemIcon, ListItemText, Typography, Button, Icon, useMediaQuery, IconButton,} from '@mui/material';
+import React, { useState, } from 'react';
+import { Box, ThemeProvider, List, ListItemButton, ListItemIcon, ListItemText, Typography, useMediaQuery, IconButton,} from '@mui/material';
 import { usePathname, useRouter } from 'next/navigation';
 import MenuIcon from '@mui/icons-material/Menu';
-import CloseIcon from '@mui/icons-material/Close';
 
 import theme from '../styles/theme';
 import { getCurrentUser } from '../api/auth';
@@ -52,45 +51,45 @@ const Sidebar: React.FC = () => {
     return (
         <ThemeProvider theme={theme}>
             { isMobile ? (
-                <Box sx={{ width: "45px", background: '#FFFFFF', border: open ? '1px solid #A3A3A3' : 'none', marginLeft: "2%", marginTop: "3vh", position: "absolute", top: 0, left: 0, right: 0, zIndex: 1400 }}>
+                <Box sx={{ width: "45px", background: '#FFFFFF', border: open ? '1px solid #A3A3A3' : 'none', marginLeft: "2%", marginTop: "2.5vh", position: "absolute", top: 0, left: 0, right: 0, zIndex: 1300 }}>
                     <Box>
                     <IconButton
                         onClick={() => setOpen(!open)}
                         sx={{ p: '10px' }}
                     >
-                        {open ? <CloseIcon /> : <MenuIcon />}
+                        {open ? <MenuIcon sx={{ transform: "rotate(90deg)",  transition: "transform 0.3s ease-in-out" }}/> : <MenuIcon sx={{ transition: "transform 0.3s ease-in-out" }}/>}
                     </IconButton>
                     </Box>
-                    {open && (
-                    <List sx={{ display: 'flex', flexDirection: 'column', gap: 1, }}>
-                        {menuItems.map((item) => {
-                            const isActive = pathname === item.path;
-                            return (
-                                <ListItemButton
-                                key={item.path}
-                                onClick={() => {
-                                    router.push(item.path);
-                                    setOpen(false);
-                                }}
-                                sx={{
-                                    justifyContent: 'flex-start',
-                                    backgroundColor: isActive ? 'primary.main' : '#EEEEEE',
-                                    color: isActive ? '#FFFFFF' : 'secondary.main',
-                                    padding: '12px',
-                                }}
-                                >
-                                <ListItemIcon sx={{ color: 'inherit', minWidth: '0px' }}>{item.icon}</ListItemIcon>
-                                </ListItemButton>
-                            );
-                        })}
-                        <Box onClick={logout} sx={{ paddingLeft: "15px", paddingTop: "12px" }}>    
-                            <img src="/images/exit-icon.svg" alt="Выйти" />
-                        </Box>
-                    </List>
-                    )}
+                    <Box sx={{ maxHeight: open ? "500px" : "0px", opacity: open ? 1 : 0, overflow: "hidden", transition: "maxHeight 0.3s ease-in-out" }}>
+                        <List sx={{ display: 'flex', flexDirection: 'column', gap: 1, }}>
+                            {menuItems.map((item) => {
+                                const isActive = pathname === item.path;
+                                return (
+                                    <ListItemButton
+                                    key={item.path}
+                                    onClick={() => {
+                                        router.push(item.path);
+                                        setOpen(false);
+                                    }}
+                                    sx={{
+                                        justifyContent: 'flex-start',
+                                        backgroundColor: isActive ? 'primary.main' : '#EEEEEE',
+                                        color: isActive ? '#FFFFFF' : 'secondary.main',
+                                        padding: '12px',
+                                    }}
+                                    >
+                                    <ListItemIcon sx={{ color: 'inherit', minWidth: '0px' }}>{item.icon}</ListItemIcon>
+                                    </ListItemButton>
+                                );
+                            })}
+                            <Box onClick={logout} sx={{ paddingLeft: "15px", paddingTop: "12px" }}>    
+                                <img src="/images/exit-icon.svg" alt="Выйти" />
+                            </Box>
+                        </List>
+                    </Box>
                 </Box>
             ) : (
-                <Box sx={{ width: isTablet ? "52px" : "330px", height: '92vh', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <Box sx={{ position: "fixed", width: isTablet ? "52px" : "270px", height: '92vh', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: "center", background: "#FFFFFF" }}>
                     <List>
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                             {menuItems.map((item) => {
@@ -103,7 +102,9 @@ const Sidebar: React.FC = () => {
                                     sx={{ justifyContent: 'flex-start', gap: 2, 
                                         backgroundColor: isActive ? 'primary.main' : '#EEEEEE',
                                         color: isActive ? '#FFFFFF' : 'secondary.main',
-                                        padding: "15px" }}
+                                        padding: "15px", 
+                                        '&:hover': { background: isActive ? "#815FB9" : "secondary.main", } 
+                                    }}
                                     >
                                     <ListItemIcon sx={{ color: 'inherit', minWidth: "0px" }}>{item.icon}</ListItemIcon>
                                     {!isTablet && <ListItemText primary={item.text} />}

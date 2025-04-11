@@ -4,7 +4,7 @@ import PushSubscription from '../components/PushSubscription';
 import '../styles/global.css';
 import '../styles/AddEventFrom.css';
 import '../styles/MeetingRoomCardStyles.css';
-import { ThemeProvider } from '@mui/material';
+import { ThemeProvider, useMediaQuery } from '@mui/material';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import { NotificationProvider } from '../context/NotificationContext';
 import theme from '../styles/theme';
@@ -12,6 +12,10 @@ import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
 const AuthenticatedApp: React.FC<AppProps> = ({ Component, pageProps }) => {
+  const isTablet = useMediaQuery("(max-width:1024px)");
+  const isMobile = useMediaQuery("(max-width:600px)");
+  
+
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -47,9 +51,9 @@ const AuthenticatedApp: React.FC<AppProps> = ({ Component, pageProps }) => {
   return (
     <ThemeProvider theme={theme}>
       {user && <PushSubscription userId={user.id} />}
-      <div style={{ display: 'flex', width: "96%", padding: "4vh 2%", gap: "2%", overflow: 'hidden' }}>
+      <div style={{ display: 'flex', width: "96%", padding: isTablet ? isMobile ? "2vh 2%" : "3vh 2%" : "4vh 2%", overflow: 'hidden' }}>
         <Sidebar />
-        <div style={{ width: "100%", overflowY: 'auto' }}>
+        <div style={{ width: "100%", overflowY: 'auto', marginLeft: isTablet ? isMobile ? "0px" : "65px" : "305px" }}>
           <Component {...pageProps} />
         </div>
       </div>

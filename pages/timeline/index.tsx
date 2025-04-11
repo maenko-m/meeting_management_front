@@ -30,6 +30,8 @@ const Timeline = () => {
 
     const hourStep = isLaptop ? 2 : 1;
     const hourWidth = 120;
+    const columnsCount = 24 / hourStep;
+    const columnWidthPercent = 100 / columnsCount;
     const hours = Array.from({ length: Math.ceil(17 / hourStep) }, (_, i) => `${String(i * hourStep + 6).padStart(2, '0')}:00`);
      
     const [rooms, setRooms] = useState<MeetingRoom[]>([]);
@@ -120,7 +122,7 @@ const Timeline = () => {
                 {/* Заголовок */}
                 <Box sx={{ position: "sticky", top: 0, zIndex: 10 }}>
                     <Box sx={{ display: "flex", justifyContent: "space-between", marginBottom: "1em", alignItems: isMobile ? "flex-end" : "center", flexDirection: isMobile ? "column" : "row", gap: 1}}>
-                        <Typography variant='h5'>Таймлайн</Typography>
+                        <Typography variant='h5' sx={{ padding: "12px 0" }} >Таймлайн</Typography>
                         <Box sx={{ display: "flex", gap: 1 }}>
                             {officesLoading ? (
                                 <Typography>Загрузка офисов...</Typography>
@@ -143,13 +145,13 @@ const Timeline = () => {
 
                     {/* Переключатель даты */}
                     <Box sx={{
+                    width: '100%', 
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    border: '1px solid #A3A3A3',
                     marginBottom: '1em',
-                    width: '100%',
-                    boxSizing: 'border-box' }} >
+                    border: '1px solid #A3A3A3',
+                    boxSizing: 'border-box', }} >
                         <Button color='secondary' onClick={() => changeDate(-1)}>
                             <ChevronLeft />
                         </Button>
@@ -163,7 +165,7 @@ const Timeline = () => {
                 </Box>
 
                 {/* Таймлайн */}
-                    <Box sx={{ overflowX: 'auto',  width: '100%' }}>
+                    <Box sx={{ overflowX: isTablet2 ? "auto" : "hidden",  width: '100%' }}>
                         <Box sx={{ width: isTablet2 ? `${hours.length * hourWidth + 200}px` : '100%' }}>
                             <Grid container spacing={0} sx={{ display: "flex", alignItems: "center", background: "#E3E3E3", width: '100%', height: 40, marginBottom: "0.5em" }}>
                                 <Grid item xs={1.5}></Grid>
@@ -195,10 +197,10 @@ const Timeline = () => {
                                             if (eventEnd <= currentHour || eventStart >= nextHour) return null;
 
                                             const startOffset = Math.max(0, eventStart - currentHour) / (60 * hourStep) * 100;
-                                            const endOffset = Math.min(60, eventEnd - currentHour) / (60 * hourStep) * 100;
+                                            const endOffset = Math.min(60 * hourStep, eventEnd - currentHour) / (60 * hourStep) * 100;
 
                                             return (
-                                                <Tooltip key={i} title={`${event.timeStart} - ${event.timeEnd} ${event.name}`} arrow>
+                                                <Tooltip key={i} title={`${event.timeStart} - ${event.timeEnd} ${event.name}`} arrow enterTouchDelay={0} leaveTouchDelay={3000} >
                                                     <Box
                                                     key={i}
                                                     sx={{
@@ -207,11 +209,8 @@ const Timeline = () => {
                                                     left: `${startOffset}%`,
                                                     width: `${endOffset - startOffset}%`,
                                                     height: '50%',
-                                                    backgroundColor: colors[colorsCount++],
+                                                    backgroundColor: colors[event.id % colors.length],
                                                     transition: 'height 0.3s ease-in-out',
-                                                    '&:hover': {
-                                                        height: '100%',
-                                                    }
                                                     }}/>
                                                 </Tooltip>
                                             );

@@ -177,7 +177,7 @@ const EventsAdmin: React.FC<EventsProps> = ({ disableRoomElements = false, idRoo
                 {/* Фильтрация */}
                 <Box sx={{ display: "flex", alignItems: isLaptop ? "stetch" : "center", justifyContent: "space-between", marginBottom: "1em", flexDirection: isLaptop ? "column" : "row", gap: 1 }}>
                     <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: isMobile ? "flex-end" : "center", flexDirection: isMobile ? "column" : "row", gap: 1  }}>
-                        <Typography variant='h5'>Все мероприятия</Typography>
+                        <Typography variant='h5' sx={{ whiteSpace: "nowrap", padding: "12px 0" }} >Все мероприятия</Typography>
                     </Box>
                     <Box sx={{ display:"flex", alignItems: "center", gap: 2, flexDirection: isMobile ? "column" : "row" }}>
                         <Button variant="outlined" color="secondary" onClick={() => handleAddEvent()} sx={{ width: isMobile ? "100%" : "auto"}}>

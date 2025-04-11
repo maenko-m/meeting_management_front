@@ -135,7 +135,7 @@ const MeetingRoomCard = () => {
         return (
           <ThemeProvider theme={theme}>
             <Box sx={{ padding: '4vh 2%' }}>
-              <Typography>Загрузка...</Typography>
+              <Typography textAlign="center" >Загрузка...</Typography>
             </Box>
           </ThemeProvider>
         );
@@ -156,7 +156,7 @@ const MeetingRoomCard = () => {
             <ThemeProvider theme={theme}>
                 <div className="content">
                     <div className="title-container">
-                        <Typography variant='h5'>Переговорная комната - {meetingRoom?.name}</Typography>
+                        <Typography variant='h5' sx={{ padding: "12px 0", marginLeft: "50px" }} >Переговорная комната - {meetingRoom?.name}</Typography>
                         <Button color="secondary" sx={{backgroundColor: '#eee'}} onClick={() => {router.push('/rooms')}}>
                             К списку комнат
                         </Button>

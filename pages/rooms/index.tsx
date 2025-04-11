@@ -91,157 +91,158 @@ const MeetingRooms = () => {
 
     return (
         <ThemeProvider theme={theme}>
-            <div>
-
-                {/* Фильтрация */}
-                <Box sx={{ display: "flex", alignItems: isLaptop2 ? "stetch" : "center", justifyContent: "space-between", marginBottom: "1em", flexDirection: isLaptop2 ? "column" : "row", gap: 1 }}>
-                    <Box sx={{ display: "flex", gap: 1, justifyContent: isMobile ? "flex-end" : "flex-start" }} >
-                        <Typography variant='h5' sx={{ whiteSpace: "nowrap" }}>Переговорные комнаты</Typography>
-                        <Typography sx={{ color: "#A3A3A3" }}>
-                            {loading ? (0) : error ? (0) : (roomsAmount)}
-                        </Typography>
-                    </Box>
-                    <Box sx={{ display:"flex", gap: 2, flexDirection: isTablet ? "column" : "row" }}>
-                        <Box sx={{ display:"flex", gap: 2, width: "100%", flexDirection: isMobile ? "column" : "row" }}>
-                            <TextField
-                                variant="outlined"
-                                placeholder="Название комнаты"
-                                value={nameFilter}
-                                onChange={(e) => setNameFilter(e.target.value)}
-                                sx={{ width: isLaptop2 ? "100%" : "230px"}}
-                            />
-                            <Select
-                                value={officeId}
-                                onChange={(e) => setOfficeId(e.target.value as number | "" )}
-                                displayEmpty
-                                sx={{ width: isLaptop2 ? "100%" : "230px"}}
-                                >
-                                    <MenuItem value="">Все офисы</MenuItem>
-                                    {offices.map((office) => (
-                                        <MenuItem key={office.id} value={office.id}>
-                                        {office.name}
-                                        </MenuItem>
-                                    ))}
-                            </Select>
+            <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: isTablet ? "94vh" : "92vh" }}>
+                <Box>
+                    {/* Фильтрация */}
+                    <Box sx={{ display: "flex", alignItems: isLaptop2 ? "stetch" : "center", justifyContent: "space-between", marginBottom: "1em", flexDirection: isLaptop2 ? "column" : "row", gap: 1 }}>
+                        <Box sx={{ display: "flex", gap: 1, justifyContent: isMobile ? "flex-end" : "flex-start" }} >
+                            <Typography variant='h5' sx={{ whiteSpace: "nowrap", padding: "12px 0" }}>Переговорные комнаты</Typography>
+                            <Typography sx={{ color: "#A3A3A3" }}>
+                                {loading ? (0) : error ? (0) : (roomsAmount)}
+                            </Typography>
                         </Box>
-                        <Box sx={{ display:"flex", gap: 2, flexDirection: isMobile ? "column" : "row" }}>
-                            <Stack direction="row" sx={{ width: "100%" }}>
-                                <Button 
-                                    variant={activeButton === "Все" ? "contained" : "outlined"} 
-                                    color={activeButton === "Все" ? "success" : "secondary"}
-                                    onClick={() => setActiveButton("Все")} 
-                                    sx={{
-                                        flex: isTablet ? 1 : "auto",
-                                        width: isTablet ? "100%" : "auto",
-                                        border: "1px solid",
-                                        borderColor: activeButton === "Все" ? "success.main" : "secondary.main",
-                                        boxShadow: activeButton === "Все" ? "none" : undefined,
-                                        "&:hover": {
-                                            boxShadow: "none",
-                                        }
-                                    }}>Все
-                                </Button>
-                                <Button 
-                                    variant={activeButton === "Активные" ? "contained" : "outlined"} 
-                                    color={activeButton === "Активные" ? "success" : "secondary"}
-                                    onClick={() => setActiveButton("Активные")} 
-                                    sx={{
-                                        flex: isTablet ? 1 : "auto",
-                                        width: isTablet ? "100%" : "auto",
-                                        border: "1px solid",
-                                        borderColor: activeButton === "Активные" ? "success.main" : "secondary.main",
-                                        boxShadow: activeButton === "Активные" ? "none" : undefined,
-                                        "&:hover": {
-                                            boxShadow: "none",
-                                        }
-                                    }}>Активные
-                                </Button>
-                            </Stack>
-                            <Box sx={{ display: "flex", width: "100%" }}>
-                                <Button 
-                                    variant={accessibleButton === "Все" ? "contained" : "outlined"} 
-                                    color={accessibleButton === "Все" ? "success" : "secondary"}
-                                    onClick={() => setAccessibleButton("Все")} 
-                                    sx={{
-                                        flex: isTablet ? 1 : "auto",
-                                        border: "1px solid",
-                                        borderColor: accessibleButton === "Все" ? "success.main" : "secondary.main",
-                                        boxShadow: accessibleButton === "Все" ? "none" : undefined,
-                                        "&:hover": {
-                                            boxShadow: "none",
-                                        }
-                                    }}>Все
-                                </Button>
-                                <Button 
-                                    variant={accessibleButton === "Доступные мне" ? "contained" : "outlined"} 
-                                    color={accessibleButton === "Доступные мне" ? "success" : "secondary"}
-                                    onClick={() => setAccessibleButton("Доступные мне")} 
-                                    sx={{
-                                        flex: isTablet ? 1 : "auto",
-                                        border: "1px solid",
-                                        borderColor: accessibleButton === "Доступные мне" ? "success.main" : "secondary.main",
-                                        boxShadow: accessibleButton === "Доступные мне" ? "none" : undefined,
-                                        "&:hover": {
-                                            boxShadow: "none",
-                                        },
-                                        whiteSpace: "nowrap"
-                                    }}>Доступные мне
-                                </Button>
+                        <Box sx={{ display:"flex", gap: 2, flexDirection: isTablet ? "column" : "row" }}>
+                            <Box sx={{ display:"flex", gap: 2, width: "100%", flexDirection: isMobile ? "column" : "row" }}>
+                                <TextField
+                                    variant="outlined"
+                                    placeholder="Название комнаты"
+                                    value={nameFilter}
+                                    onChange={(e) => setNameFilter(e.target.value)}
+                                    sx={{ width: isLaptop2 ? "100%" : "230px"}}
+                                />
+                                <Select
+                                    value={officeId}
+                                    onChange={(e) => setOfficeId(e.target.value as number | "" )}
+                                    displayEmpty
+                                    sx={{ width: isLaptop2 ? "100%" : "230px"}}
+                                    >
+                                        <MenuItem value="">Все офисы</MenuItem>
+                                        {offices.map((office) => (
+                                            <MenuItem key={office.id} value={office.id}>
+                                            {office.name}
+                                            </MenuItem>
+                                        ))}
+                                </Select>
+                            </Box>
+                            <Box sx={{ display:"flex", gap: 2, flexDirection: isMobile ? "column" : "row" }}>
+                                <Stack direction="row" sx={{ width: "100%" }}>
+                                    <Button 
+                                        variant={activeButton === "Все" ? "contained" : "outlined"} 
+                                        color={activeButton === "Все" ? "success" : "secondary"}
+                                        onClick={() => setActiveButton("Все")} 
+                                        sx={{
+                                            flex: isTablet ? 1 : "auto",
+                                            width: isTablet ? "100%" : "auto",
+                                            border: "1px solid",
+                                            borderColor: activeButton === "Все" ? "success.main" : "secondary.main",
+                                            boxShadow: activeButton === "Все" ? "none" : undefined,
+                                            "&:hover": {
+                                                boxShadow: "none",
+                                            }
+                                        }}>Все
+                                    </Button>
+                                    <Button 
+                                        variant={activeButton === "Активные" ? "contained" : "outlined"} 
+                                        color={activeButton === "Активные" ? "success" : "secondary"}
+                                        onClick={() => setActiveButton("Активные")} 
+                                        sx={{
+                                            flex: isTablet ? 1 : "auto",
+                                            width: isTablet ? "100%" : "auto",
+                                            border: "1px solid",
+                                            borderColor: activeButton === "Активные" ? "success.main" : "secondary.main",
+                                            boxShadow: activeButton === "Активные" ? "none" : undefined,
+                                            "&:hover": {
+                                                boxShadow: "none",
+                                            }
+                                        }}>Активные
+                                    </Button>
+                                </Stack>
+                                <Box sx={{ display: "flex", width: "100%" }}>
+                                    <Button 
+                                        variant={accessibleButton === "Все" ? "contained" : "outlined"} 
+                                        color={accessibleButton === "Все" ? "success" : "secondary"}
+                                        onClick={() => setAccessibleButton("Все")} 
+                                        sx={{
+                                            flex: isTablet ? 1 : "auto",
+                                            border: "1px solid",
+                                            borderColor: accessibleButton === "Все" ? "success.main" : "secondary.main",
+                                            boxShadow: accessibleButton === "Все" ? "none" : undefined,
+                                            "&:hover": {
+                                                boxShadow: "none",
+                                            }
+                                        }}>Все
+                                    </Button>
+                                    <Button 
+                                        variant={accessibleButton === "Доступные мне" ? "contained" : "outlined"} 
+                                        color={accessibleButton === "Доступные мне" ? "success" : "secondary"}
+                                        onClick={() => setAccessibleButton("Доступные мне")} 
+                                        sx={{
+                                            flex: isTablet ? 1 : "auto",
+                                            border: "1px solid",
+                                            borderColor: accessibleButton === "Доступные мне" ? "success.main" : "secondary.main",
+                                            boxShadow: accessibleButton === "Доступные мне" ? "none" : undefined,
+                                            "&:hover": {
+                                                boxShadow: "none",
+                                            },
+                                            whiteSpace: "nowrap"
+                                        }}>Доступные мне
+                                    </Button>
+                                </Box>
                             </Box>
                         </Box>
                     </Box>
-                </Box>
-                
-                {/* Таблица */}
-                <TableContainer component={Paper}>
-                    <Table>
-                    <TableHead color="secondary">
-                        <TableRow>
-                            <TableCell>Наименование</TableCell>
-                            <TableCell>Офис</TableCell>
-                            <TableCell>Статус</TableCell>
-                            <TableCell>Доступность</TableCell>
-                            <TableCell>{isLaptop ? "Чел." : "Емкость, чел."}</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {loading ? (
+                    
+                    {/* Таблица */}
+                    <TableContainer component={Paper}>
+                        <Table>
+                        <TableHead color="secondary">
                             <TableRow>
-                            <TableCell colSpan={5}>
-                                <Typography align="center">Загрузка...</Typography>
-                            </TableCell>
+                                <TableCell>Наименование</TableCell>
+                                <TableCell>Офис</TableCell>
+                                <TableCell>Статус</TableCell>
+                                <TableCell>Доступность</TableCell>
+                                <TableCell>{isLaptop ? "Чел." : "Емкость, чел."}</TableCell>
                             </TableRow>
-                        ) : error ? (
-                            <TableRow>
-                            <TableCell colSpan={5}>
-                                <Typography align="center" color="error">
-                                    {error}
-                                </Typography>
-                            </TableCell>
-                            </TableRow>
-                        ) : (
-                            rooms.map((room) => (
-                            <TableRow key={room.id} 
-                                onClick={() => handleRowClick(room.id)}
-                                sx={{ 
-                                    cursor: "pointer", 
+                        </TableHead>
+                        <TableBody>
+                            {loading ? (
+                                <TableRow>
+                                <TableCell colSpan={5}>
+                                    <Typography align="center">Загрузка...</Typography>
+                                </TableCell>
+                                </TableRow>
+                            ) : error ? (
+                                <TableRow>
+                                <TableCell colSpan={5}>
+                                    <Typography align="center" color="error">
+                                        {error}
+                                    </Typography>
+                                </TableCell>
+                                </TableRow>
+                            ) : (
+                                rooms.map((room) => (
+                                <TableRow key={room.id} 
+                                    onClick={() => handleRowClick(room.id)}
+                                    sx={{ 
+                                        cursor: "pointer", 
 
-                                    "&:hover": { 
-                                        backgroundColor: "#f5f5f5" 
-                                    } 
-                                }}
-                                >
-                                <TableCell>{room.name}</TableCell>
-                                <TableCell>{room.office.name}</TableCell>
-                                <TableCell>{room.status}</TableCell>
-                                <TableCell>{room.isPublic ? "Публичная" : "Приватная"}</TableCell>
-                                <TableCell>{room.size}</TableCell>
-                            </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                    </Table>
-                </TableContainer>
+                                        "&:hover": { 
+                                            backgroundColor: "#f5f5f5" 
+                                        } 
+                                    }}
+                                    >
+                                    <TableCell>{room.name}</TableCell>
+                                    <TableCell>{room.office.name}</TableCell>
+                                    <TableCell>{room.status}</TableCell>
+                                    <TableCell>{room.isPublic ? "Публичная" : "Приватная"}</TableCell>
+                                    <TableCell>{room.size}</TableCell>
+                                </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Box>
                 {5 > 1 && (
                 <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
                     <Pagination

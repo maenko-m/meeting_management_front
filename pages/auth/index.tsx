@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TextField, Button, Typography, Dialog } from '@mui/material';
+import { TextField, Button, Typography, Dialog, useMediaQuery } from '@mui/material';
 import { Box, ThemeProvider } from '@mui/system';
 import { useRouter } from 'next/router';
 
@@ -9,6 +9,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 
 const Login = () => {
+  const isMobile = useMediaQuery("(max-width:600px)");
   const [open] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,11 +42,10 @@ const Login = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Dialog open={open}  sx={{ "& .MuiPaper-root": { padding: 3, boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)" } }}>
-        <Box sx={{ minWidth: "400px" }}>
-
-          <Box sx={{ display: "flex" }}>
-              <img src="/images/account-icon.svg" alt="icon" style={{ marginRight: 5 }} />
+      <Dialog open={open} scroll="paper" sx={{ "& .MuiPaper-root": { padding: 3, margin: isMobile ? "0" : "32px", width: isMobile ? "100%" : "400px" } }}>
+        <Box >
+          <Box sx={{ display: "flex", gap: 1 }}>
+              <img src="/images/account-icon.svg" alt="icon" />
               <Typography variant="h5">Вход</Typography>
           </Box>
 

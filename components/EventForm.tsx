@@ -15,7 +15,8 @@ import {
   IconButton,
   Popper,
   ToggleButtonGroup,
-  ToggleButton
+  ToggleButton, 
+  useMediaQuery
 } from '@mui/material';
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -51,6 +52,7 @@ interface EventFormProps {
 }
 
 const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEvent }) => {
+  const isMobile = useMediaQuery("(max-width:600px)");
   const [eventName, setEventName] = useState("");
   const [eventDesc, setEventDesc] = useState("");
   const [eventOfficeId, setEventOfficeId] = useState<number | null>(null);
@@ -217,7 +219,7 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
 
   return (
     <ThemeProvider theme={theme}>
-        <Dialog open={open} slotProps={{paper: {className: "dialog-container"}}}>
+        <Dialog open={open} scroll="paper" slotProps={{ paper: { className: "dialog-container", sx: { margin: isMobile ? "0" : "32px", height: isMobile ? "100%" : "calc(100% - 60px * 2)" } } }}>
             <div className='event-form-content'>
               <div className="event-form-title-container">
                 <div className='event-form-title-container-main'>
