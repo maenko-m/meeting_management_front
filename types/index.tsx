@@ -69,6 +69,9 @@ export interface EventCreate {
   timeStart: string; 
   timeEnd: string; 
   meetingRoomId: number;
+  recurrenceType?: string;
+  recurrenceInterval?: number;
+  recurrenceEnd?: string;
 }
 
 export interface PaginatedResponse<T> {
