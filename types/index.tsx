@@ -76,5 +76,18 @@ export interface EventCreate {
 
 export interface PaginatedResponse<T> {
   data: T[];
-  total: number[];
+  meta: PaginationMeta;
+  counts?: Counts;
+}
+
+interface PaginationMeta {
+  total: number;
+  page: number; 
+  limit: number; 
+  totalPages: number;
+}
+
+interface Counts {
+  author: number; // Количество событий, где пользователь — автор
+  member: number; // Количество событий, где пользователь — участник
 }

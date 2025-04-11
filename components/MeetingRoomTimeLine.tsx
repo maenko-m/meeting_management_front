@@ -21,7 +21,6 @@ const colors = [
     'rgba(50, 122, 255, 0.7)',
     'rgba(42, 200, 71, 0.7)',
 ];
-let colorsCount = 0;
 
 const timeMarks = ['6:00', '10:00', '14:00', '18:00', '22:00'];
 
@@ -165,9 +164,9 @@ const MeetingRoomTimeline: React.FC<MeetingRoomTimelineProps> = ({
         <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>Ваше мероприятие</Typography>
       </Box>
 
-      {isElementLoaded && events.map((event) => {
+      {isElementLoaded && events.map((event, index) => {
         const { left, width } = calculateEventPosition(event.timeStart, event.timeEnd, timelineWidth);
-        if (colorsCount >= colors.length) colorsCount = 0;
+        const colorIndex = index % colors.length;
 
         return (
           <Tooltip
@@ -181,12 +180,13 @@ const MeetingRoomTimeline: React.FC<MeetingRoomTimelineProps> = ({
             arrow
           >
             <Box
+              key={index}
               sx={{
                 position: "absolute",
                 left,
                 width,
                 height: "20px",
-                backgroundColor: `${colors[colorsCount++]}`,
+                backgroundColor: `${colors[colorIndex]}`,
                 bottom: "calc(50% - 10px)", 
                 transition: "height 0.2s ease-in-out",
                 zIndex: 1,

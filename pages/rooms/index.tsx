@@ -33,6 +33,8 @@ const MeetingRooms = () => {
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
 
+    const [roomsTotalPages, setRoomsTotalPages] = useState<number>(1);
+
     const router = useRouter();
     const { showNotification } = useNotification()
 
@@ -70,7 +72,8 @@ const MeetingRooms = () => {
             };
             const data = await fetchMeetingRooms(filters);
             setRooms(data.data); 
-            setRoomsAmount(data.total[0]);
+            setRoomsAmount(data.meta.total);
+            setRoomsTotalPages(data.meta.totalPages);
           } catch (err) {
             showNotification(
                 "Не удалось загрузить список комнат",
@@ -227,7 +230,7 @@ const MeetingRooms = () => {
                                         cursor: "pointer", 
 
                                         "&:hover": { 
-                                            backgroundColor: "#f5f5f5" 
+                                            opacity: "0.4" 
                                         } 
                                     }}
                                     >
@@ -243,16 +246,16 @@ const MeetingRooms = () => {
                         </Table>
                     </TableContainer>
                 </Box>
-                {5 > 1 && (
-                <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-                    <Pagination
-                        count={5}
-                        page={page}
-                        onChange={handlePageChange}
-                        color="primary"
-                        size="medium"
-                    />
-                </Box>
+                {roomsTotalPages > 1 && (
+                    <Box sx={{ mt: 4, display: 'flex', justifyContent: 'start' }}>
+                        <Pagination
+                            count={roomsTotalPages}
+                            page={page}
+                            onChange={handlePageChange}
+                            color="primary"
+                            size="medium"
+                        />
+                    </Box>
                 )}
             </div>
         </ThemeProvider>

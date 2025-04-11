@@ -114,7 +114,7 @@ const Sidebar: React.FC = () => {
                         </Box>
                     </List>
 
-                    <Box onClick={logout} sx={{ marginTop: 'auto', display: 'flex', gap: 2, cursor: 'pointer'}}>    
+                    <Box onClick={logout} sx={{ marginTop: 'auto', display: 'flex', gap: 2, cursor: 'pointer', width: 'calc(100% - 15px * 2)', padding: '0 15px', justifyContent: 'space-between'}}>    
                         <Typography noWrap sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: isTablet ? "none" : "block" }}>
                             {`${user?.name} ${user?.surname} ${user?.patronymic}`}
                         </Typography>

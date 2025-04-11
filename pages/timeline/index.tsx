@@ -187,8 +187,8 @@ const Timeline = () => {
                                     </Grid>
                                     {hours.map(hour => (
                                     <Grid item xs key={hour} sx={{ display: "grid", alignItems: "center", borderLeft: '1px solid #CCCCCC', height: 50, position: 'relative' }}>
-                                        {events.filter((event) => event.meetingRoomId === room.id).map((event, i) => {
-                                            if (colorsCount >= colors.length) colorsCount = 0;
+                                        {events.filter((event, index) => event.meetingRoomId === room.id).map((event, i) => {
+                                            const colorIndex = index % colors.length;
                                             const eventStart = timeToMinutes(event.timeStart);
                                             const eventEnd = timeToMinutes(event.timeEnd);
                                             const currentHour = timeToMinutes(hour);
@@ -209,7 +209,7 @@ const Timeline = () => {
                                                     left: `${startOffset}%`,
                                                     width: `${endOffset - startOffset}%`,
                                                     height: '50%',
-                                                    backgroundColor: colors[event.id % colors.length],
+                                                    backgroundColor: colors[colorIndex],
                                                     transition: 'height 0.3s ease-in-out',
                                                     }}/>
                                                 </Tooltip>

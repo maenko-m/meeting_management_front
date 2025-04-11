@@ -36,6 +36,7 @@ const EventsAdmin: React.FC<EventsProps> = ({ disableRoomElements = false, idRoo
 
     const [events, setEvents] = useState<Event[]>([]);
     const [rooms, setRooms] = useState<MeetingRoom[]>([]);
+    const [eventsAmount, setEventsAmount] = useState<number>(0);
     const [eventsLoading, setEventsLoading] = useState(true);
     const [eventsError, setEventsError] = useState<string | null>(null);
 
@@ -51,6 +52,8 @@ const EventsAdmin: React.FC<EventsProps> = ({ disableRoomElements = false, idRoo
     const [descOrder, setDescOrder] = useState<boolean>(false);
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
+
+    const [eventsTotalPages, setEventsTotalPages] = useState<number>(1);
   
     const toggleRow = (index: number) => {
         setOpenRows((prev) => ({ ...prev, [index]: !prev[index] }));
@@ -137,6 +140,8 @@ const EventsAdmin: React.FC<EventsProps> = ({ disableRoomElements = false, idRoo
           };
           const data = await fetchEvents(filters);
           setEvents(data.data);
+          setEventsAmount(data.meta.total);
+          setEventsTotalPages(data.meta.totalPages);
         } catch (err) {
             showNotification(
                 "Не удалось загрузить мероприятия",
@@ -177,7 +182,12 @@ const EventsAdmin: React.FC<EventsProps> = ({ disableRoomElements = false, idRoo
                 {/* Фильтрация */}
                 <Box sx={{ display: "flex", alignItems: isLaptop ? "stetch" : "center", justifyContent: "space-between", marginBottom: "1em", flexDirection: isLaptop ? "column" : "row", gap: 1 }}>
                     <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: isMobile ? "flex-end" : "center", flexDirection: isMobile ? "column" : "row", gap: 1  }}>
-                        <Typography variant='h5' sx={{ whiteSpace: "nowrap", padding: "12px 0" }} >Все мероприятия</Typography>
+                                    <Box sx={{ display: "flex", gap: 1}}>
+                                        <Typography variant="h5" sx={{ whiteSpace: "nowrap", padding: "12px 0" }} >Все мероприятия</Typography>
+                                        <Typography sx={{ color: "#A3A3A3" }}>
+                                            {eventsLoading ? (0) : eventsError ? (0) : (eventsAmount)}
+                                        </Typography>
+                                    </Box>
                     </Box>
                     <Box sx={{ display:"flex", alignItems: "center", gap: 2, flexDirection: isMobile ? "column" : "row" }}>
                         <Button variant="outlined" color="secondary" onClick={() => handleAddEvent()} sx={{ width: isMobile ? "100%" : "auto"}}>
@@ -323,16 +333,16 @@ const EventsAdmin: React.FC<EventsProps> = ({ disableRoomElements = false, idRoo
                         </TableBody>
                     </Table>
                 </TableContainer>
-                {5 > 1 && (
-                <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-                    <Pagination
-                        count={5}
-                        page={page}
-                        onChange={handlePageChange}
-                        color="primary"
-                        size="medium"
-                    />
-                </Box>
+                {eventsTotalPages > 1 && (
+                    <Box sx={{ mt: 4, display: 'flex', justifyContent: 'start' }}>
+                        <Pagination
+                            count={eventsTotalPages}
+                            page={page}
+                            onChange={handlePageChange}
+                            color="primary"
+                            size="medium"
+                        />
+                    </Box>
                 )}
                 <EventForm 
                     open={formOpen} 

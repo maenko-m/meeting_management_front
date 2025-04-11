@@ -28,6 +28,7 @@ const ProfilePage = () => {
 
     const [rooms, setRooms] = useState<MeetingRoom[]>([]);
     const [events, setEvents] = useState<Event[]>([]);
+    const [eventsAmount, setEventsAmount] = useState<number>(0);
     const [eventsLoading, setEventsLoading] = useState(true);
     const [eventsError, setEventsError] = useState<string | null>(null);
 
@@ -37,6 +38,7 @@ const ProfilePage = () => {
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
 
+    const [eventsTotalPages, setEventsTotalPages] = useState<number>(1);
 
     const [openRows, setOpenRows] = useState<{ [key: number]: boolean }>({});
     const [anchorEls, setAnchorEls] = useState<{ [key: number]: HTMLElement | null }>({});
@@ -113,6 +115,8 @@ const ProfilePage = () => {
           };
           const data = await fetchEvents(filters);
           setEvents(data.data);
+          setEventsAmount(data.meta.total)
+          setEventsTotalPages(data.meta.totalPages);
         } catch (err) {
             showNotification(
                 "Не удалось загрузить мероприятия",
@@ -141,7 +145,13 @@ const ProfilePage = () => {
                         { isLaptop2 ? (
                             <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 2 }}>
                                 <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: isMobile ? "flex-end" : "center", flexDirection: isMobile ? "column" : "row", gap: 1 }}>
-                                    <Typography variant="h5" sx={{ whiteSpace: "nowrap", padding: "12px 0" }} >Архив мероприятий</Typography>
+                                    <Box sx={{ display: "flex", gap: 1}}>
+                                        <Typography variant="h5" sx={{ whiteSpace: "nowrap", padding: "12px 0" }} >Архив мероприятий</Typography>
+                                        <Typography sx={{ color: "#A3A3A3" }}>
+                                            {eventsLoading ? (0) : eventsError ? (0) : (eventsAmount)}
+                                        </Typography>
+                                    </Box>
+                                    
                                     <Button onClick={() => router.push('/profile')} sx={{ color: "secondary.main", background: "#EEEEEE", whiteSpace: "nowrap" }}>
                                         В профиль
                                     </Button>
@@ -206,7 +216,12 @@ const ProfilePage = () => {
                             </Box>
                         ) : (
                             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                <Typography variant="h5" sx={{ whiteSpace: "nowrap" }}>Архив мероприятий</Typography>
+                                <Box sx={{ display: "flex", gap: 1}}>
+                                        <Typography variant="h5" sx={{ whiteSpace: "nowrap", padding: "12px 0" }} >Архив мероприятий</Typography>
+                                        <Typography sx={{ color: "#A3A3A3" }}>
+                                            {eventsLoading ? (0) : eventsError ? (0) : (eventsAmount)}
+                                        </Typography>
+                                </Box>
                                 <Box sx={{ display:"flex", gap: 2 }}>
                                     <Box sx={{ display:"flex", alignItems: "center", gap: 2 }}>
                                         <Stack direction="row">
@@ -292,7 +307,22 @@ const ProfilePage = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {events.map((event, index) => (
+                                    {eventsLoading ? (
+                                        <TableRow>
+                                        <TableCell colSpan={7}>
+                                            <Typography align="center">Загрузка...</Typography>
+                                        </TableCell>
+                                        </TableRow>
+                                    ) : eventsError ? (
+                                        <TableRow>
+                                        <TableCell colSpan={7}>
+                                            <Typography align="center" color="error">
+                                                {eventsError}
+                                            </Typography>
+                                        </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                    events.map((event, index) => (
                                         <React.Fragment key={index}>
                                         {/* Основная строка */}
                                         <TableRow sx={{
@@ -353,23 +383,23 @@ const ProfilePage = () => {
                                             </TableCell>
                                         </TableRow>
                                         </React.Fragment>
-                                    ))}
+                                    )))}
                                 </TableBody>
                             </Table>
                         </TableContainer>
                     </Box>
                 </Box>
-                {5 > 1 && (
-                    <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+                {eventsTotalPages > 1 && (
+                    <Box sx={{ mt: 4, display: 'flex', justifyContent: 'start' }}>
                         <Pagination
-                            count={5}
+                            count={eventsTotalPages}
                             page={page}
                             onChange={handlePageChange}
                             color="primary"
                             size="medium"
                         />
                     </Box>
-                    )}
+                )}
             </div>
             <ConfirmComponent />
         </ThemeProvider>

@@ -39,7 +39,7 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
     const [openRows, setOpenRows] = useState<{ [key: number]: boolean }>({});
     const [anchorEls, setAnchorEls] = useState<{ [key: number]: HTMLElement | null }>({});
 
-    const [eventsAmount, setEventsAmount] = useState<Number[]>([0,0]);
+    const [eventsAmount, setEventsAmount] = useState<number[]>([0,0]);
 
     const [dialogOpen, setDialogOpen] = useState(false);
     const [formOpen, setFormOpen] = useState(false);
@@ -50,6 +50,8 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
     const router = useRouter();
     const { showNotification } = useNotification()
     const { confirm, ConfirmComponent } = useConfirmDialog();
+
+    const [eventsTotalPages, setEventsTotalPages] = useState<number>(1);
 
     useEffect(() => {
             if (!loading && (hasRole('ROLE_MODERATOR')) && !disableRoomElements) {
@@ -157,7 +159,8 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
         const data = await fetchEvents(filters);
         setEvents(data.data);
         console.log(data);
-        setEventsAmount([data.total[0], data.total[1]]);
+        setEventsAmount([data.counts?.author ?? 0, data.counts?.member ?? 0]);
+        setEventsTotalPages(data.meta.totalPages);
         } catch (err) {
             showNotification(
                 "Не удалось загрузить мероприятия",
@@ -445,16 +448,16 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
                     </TableContainer>
                     )}
                 </Box>
-                {5 > 1 && (
-                <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-                    <Pagination
-                        count={5}
-                        page={page}
-                        onChange={handlePageChange}
-                        color="primary"
-                        size="medium"
-                    />
-                </Box>
+                {eventsTotalPages > 1 && (
+                    <Box sx={{ mt: 4, display: 'flex', justifyContent: 'start' }}>
+                        <Pagination
+                            count={eventsTotalPages}
+                            page={page}
+                            onChange={handlePageChange}
+                            color="primary"
+                            size="medium"
+                        />
+                    </Box>
                 )}
                 <EventForm 
                     open={formOpen} 
