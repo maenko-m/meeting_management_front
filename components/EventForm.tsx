@@ -178,7 +178,7 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
     const selectedRoom = rooms.find((room) => room.id === selectedId);
     if (selectedRoom) {
       setSelectedSize(selectedRoom.size);
-      setAccess(selectedRoom.isPublic ? "public" : "private");
+      setAccess(selectedRoom.isPublic === true ? "public" : "private");
       setSelectedUsers(selectedRoom.employees);
       setAutocompleteDisabled(selectedRoom.employees.length > 0);
     }
@@ -276,6 +276,10 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
                     <img src='/images/people.svg' alt=''/>
                     <Typography>{selectedSize} человек</Typography>
                   </div>
+                  <div className='event-form-info-item'>
+                    <img src={access === 'private' ? '/images/lock.svg' : '/images/open.svg'} alt=''/>
+                    <Typography>{access === 'private' ? 'Приватная' : 'Публичная'} комната</Typography>
+                  </div>
                 </div>
               </div>
               <div className='event-form-scroll-box'>
@@ -342,36 +346,6 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
                           })}
                         </Select>
                       </FormControl>
-                    </Box>
-                    <Box sx={{display: "flex", flexDirection: "column", gap: 0.5, flex: 4}}>
-                      <Typography variant="subtitle1" sx={{ fontWeight: "bold" }} >
-                        Приватность
-                      </Typography>
-                      <ToggleButtonGroup
-                        value={access}
-                        exclusive
-                        disabled
-                        onChange={handleAccessChange}
-                        sx={{
-                          display: 'grid',
-                          gridTemplateColumns: '50% 50%',
-                          "& .MuiToggleButton-root": {
-                            borderRadius: "0px", 
-                            padding: "10px 20px",
-                            textTransform: "none",
-                          },
-                          "& .Mui-selected": {
-                            backgroundColor: "primary.main",
-                            color: "white", 
-                            "&:hover": {
-                              backgroundColor: "primary.dark",
-                            },
-                          },
-                        }}
-                      >
-                        <ToggleButton value="public">Публичная</ToggleButton>
-                        <ToggleButton value="private">Приватная</ToggleButton>
-                      </ToggleButtonGroup>
                     </Box>
                   </Box>
                   <Box sx={{display: "flex", flexDirection: "column", gap: 0.5}}>

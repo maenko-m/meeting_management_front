@@ -58,6 +58,10 @@ export interface Event {
   timeEnd: string; 
   meetingRoomName: string;
   meetingRoomId: number;
+  recurrenceTypeValue?: string;
+  recurrenceInterval?: number;
+  recurrenceEnd?: string;
+  parentEvent?: Event;
 }
 
 export interface EventCreate {

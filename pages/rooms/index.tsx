@@ -29,7 +29,10 @@ const MeetingRooms = () => {
     const [nameFilter, setNameFilter] = useState("");
     const [activeButton, setActiveButton] = useState("Все");
     const [accessibleButton, setAccessibleButton] = useState("Все");
-    const [officeId, setOfficeId] = useState<number | "">("");
+    const [officeId, setOfficeId] = useState<number | "">(() => {
+        const storedId = localStorage.getItem('default_office_id');
+        return storedId ? Number(storedId) : "";
+    });
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
 
@@ -122,7 +125,7 @@ const MeetingRooms = () => {
                                         <MenuItem value="">Все офисы</MenuItem>
                                         {offices.map((office) => (
                                             <MenuItem key={office.id} value={office.id}>
-                                            {office.name}
+                                                {office.name}
                                             </MenuItem>
                                         ))}
                                 </Select>

@@ -19,6 +19,13 @@ interface EventsProps {
   
 const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }) => {
 
+    const repeatTypeTranslations: Record<string, string> = {
+        day: 'день',
+        week: 'неделю',
+        month: 'месяц',
+        year: 'год',
+    };
+
     const isLaptop = useMediaQuery("(max-width:1440px)");
     const isTablet = useMediaQuery("(max-width:1024px)");
     const isMobile = useMediaQuery("(max-width:600px)");
@@ -326,10 +333,10 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
                                             <Box sx={{ margin: 2 }}>
                                             <Box sx={{ paddingBottom: 1 }}>
                                                 <Typography color="#858585" sx={{ backgroundColor: "#E3E3E3", padding: 1 }}>
-                                                Повторы
+                                                    Повторы
                                                 </Typography>
                                                 <Typography sx={{ backgroundColor: "#F4F4F4", padding: 1 }}>
-                                                Нет повторов
+                                                    {event.recurrenceInterval ? `Каждый(ую) ${event.recurrenceInterval} ${repeatTypeTranslations[event.recurrenceTypeValue!]}, до ${event.recurrenceEnd}` : "Нет повторов"}
                                                 </Typography>
                                             </Box>
                                             <Box sx={{ paddingBottom: 1 }}>
@@ -342,9 +349,13 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
                                                 <Typography color="#858585" sx={{ backgroundColor: "#E3E3E3", padding: 1 }}>
                                                     Участники
                                                 </Typography>
-                                                {event.employees.map(employee => {
-                                                    return <Typography sx={{ backgroundColor: '#F4F4F4', padding: 1 }}>{employee.fullName}</Typography>
-                                                })}
+                                                {event.employees.length > 0 ? (
+                                                        event.employees.map(employee => {
+                                                            return <Typography key={employee.id} sx={{ backgroundColor: '#F4F4F4', padding: 1 }}>{employee.fullName}</Typography>
+                                                        })
+                                                    ) : (
+                                                        <Typography sx={{ backgroundColor: '#F4F4F4', padding: 1 }}>Не указано</Typography>
+                                                )}
                                             </Box>
                                             </Box>
                                         </Collapse>
@@ -419,7 +430,7 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
                                                     Повторы
                                                     </Typography>
                                                     <Typography sx={{ backgroundColor: "#F4F4F4", padding: 1 }}>
-                                                    Нет повторов
+                                                        {event.recurrenceInterval ? `Каждый(ую) ${event.recurrenceInterval} ${repeatTypeTranslations[event.recurrenceTypeValue!]}, до ${event.recurrenceEnd}` : "Нет повторов"}
                                                     </Typography>
                                                 </Box>
                                                 <Box sx={{ paddingBottom: 1 }}>
@@ -432,9 +443,13 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
                                                     <Typography color="#858585" sx={{ backgroundColor: "#E3E3E3", padding: 1 }}>
                                                     Участники
                                                     </Typography>
-                                                    <Typography sx={{ backgroundColor: "#F4F4F4", padding: 1 }}>
-                                                    {event.employees.map((emp) => emp.fullName).join(", ")}
-                                                    </Typography>
+                                                    {event.employees.length > 0 ? (
+                                                        event.employees.map(employee => {
+                                                            return <Typography key={employee.id} sx={{ backgroundColor: '#F4F4F4', padding: 1 }}>{employee.fullName}</Typography>
+                                                        })
+                                                    ) : (
+                                                        <Typography sx={{ backgroundColor: '#F4F4F4', padding: 1 }}>Не указано</Typography>
+                                                    )}
                                                 </Box>
                                                 </Box>
                                             </Collapse>

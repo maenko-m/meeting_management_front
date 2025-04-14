@@ -42,6 +42,13 @@ const ProfilePage = () => {
 
     const [openRows, setOpenRows] = useState<{ [key: number]: boolean }>({});
     const [anchorEls, setAnchorEls] = useState<{ [key: number]: HTMLElement | null }>({});
+
+    const repeatTypeTranslations: Record<string, string> = {
+        day: 'день',
+        week: 'неделю',
+        month: 'месяц',
+        year: 'год',
+    };
     
     const toggleRow = (index: number) => {
         setOpenRows((prev) => ({ ...prev, [index]: !prev[index] }));
@@ -368,7 +375,9 @@ const ProfilePage = () => {
                                                     <Box sx={{ margin: 2 }}>
                                                         <Box sx={{ paddingBottom: 1 }}>
                                                             <Typography color='#858585' sx={{ backgroundColor: '#E3E3E3', padding: 1 }}>Повторы</Typography>
-                                                            <Typography sx={{ backgroundColor: '#F4F4F4', padding: 1 }}></Typography>
+                                                            <Typography sx={{ backgroundColor: '#F4F4F4', padding: 1 }}>
+                                                                {event.recurrenceInterval ? `Каждый(ую) ${event.recurrenceInterval} ${repeatTypeTranslations[event.recurrenceTypeValue!]}, до ${event.recurrenceEnd}` : "Нет повторов"}
+                                                            </Typography>
                                                         </Box>
                                                         <Box sx={{ paddingBottom: 1 }}>
                                                             <Typography color='#858585' sx={{ backgroundColor: '#E3E3E3', padding: 1 }}>Описание</Typography>
@@ -376,7 +385,13 @@ const ProfilePage = () => {
                                                         </Box>
                                                         <Box sx={{ paddingBottom: 1 }}>
                                                             <Typography color='#858585' sx={{ backgroundColor: '#E3E3E3', padding: 1 }}>Участники</Typography>
-                                                            <Typography sx={{ backgroundColor: '#F4F4F4', padding: 1 }}>{event.employees?.join(', ')}</Typography>
+                                                            {event.employees.length > 0 ? (
+                                                                event.employees.map(employee => {
+                                                                    return <Typography key={employee.id} sx={{ backgroundColor: '#F4F4F4', padding: 1 }}>{employee.fullName}</Typography>
+                                                                })
+                                                            ) : (
+                                                                <Typography sx={{ backgroundColor: '#F4F4F4', padding: 1 }}>Не указано</Typography>
+                                                            )}
                                                         </Box>
                                                     </Box>
                                                 </Collapse>

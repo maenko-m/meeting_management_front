@@ -107,6 +107,7 @@ const MeetingRoomCard = () => {
             const roomData = await fetchMeetingRoomById(roomId); 
             setMeetingRoom(roomData);
             setSelectedImage(roomData.photoPath[0])
+            console.log(roomData);
           } catch (err) {
             showNotification(
                 "Не удалось загрузить данные комнат",
@@ -119,6 +120,7 @@ const MeetingRoomCard = () => {
         };
     
         loadRoom();
+        
     }, [idRoom]);
 
     if (!router.isReady) {
@@ -280,7 +282,12 @@ const MeetingRoomCard = () => {
                                                     </div>
                                                 </TableCell>
                                                 <TableCell sx={{ width: "calc(100% - 128px)", padding: "10px"}}>
-                                                    {meetingRoom.employees}
+                                                    {meetingRoom.employees.map((employee, index) => (
+                                                        <span key={employee.id || index}>
+                                                            {employee.fullName}
+                                                            {index < meetingRoom.employees.length - 1 && <br />}
+                                                        </span>
+                                                    ))}
                                                 </TableCell>
                                             </TableRow>
                                         )}
