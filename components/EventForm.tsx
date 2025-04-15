@@ -75,6 +75,8 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
   const [autocompleteDisabled, setAutocompleteDisabled] = useState(false);
   const [access, setAccess] = useState<"public" | "private">("public");
 
+  const [timeError, setTimeError] = useState<boolean>(false);
+
   const [offices, setOffices] = useState<Office[]>([]);
   const [rooms, setRooms] = useState<MeetingRoom[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -165,6 +167,14 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
     }
   }, [mode, event, employees, rooms]);
 
+  useEffect(() => {
+    if (selectedTimeStart && selectedTimeEnd) {
+      setTimeError(selectedTimeStart.isAfter(selectedTimeEnd));
+    } else {
+      setTimeError(false);
+    }
+  }, [selectedTimeStart, selectedTimeEnd]);
+
   const handleChangeOffice = (event: SelectChangeEvent<number>) => {
     const selectedId = Number(event.target.value);
     setEventOfficeId(selectedId);
@@ -208,7 +218,28 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
   const handleSubmit = async () => {
     if (!eventName || !eventRoomId || !selectedDate || !selectedTimeStart || !selectedTimeEnd) {
       showNotification(
-        "Заполните все обязательные поля",
+        "Заполните все поля",
+        'error'
+      );
+      return;
+    }
+    if (selectedDate && selectedDate.isBefore(dayjs(), 'day')) {
+      showNotification(
+        "Дата не может быть раньше сегодняшнего дня",
+        'error'
+      );
+      return;
+    }
+    if (isOverSize) {
+      showNotification(
+        "Комната переполнена",
+        'error'
+      );
+      return;
+    }
+    if (timeError) {
+      showNotification(
+        "Время начала не может быть позже времени окончания",
         'error'
       );
       return;
@@ -349,9 +380,12 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
                     </Box>
                   </Box>
                   <Box sx={{display: "flex", flexDirection: "column", gap: 0.5}}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                      Участники
-                    </Typography>
+                    <Box sx={{display: "flex", justifyContent: 'space-between'}}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                        Участники
+                      </Typography>
+                      {isOverSize && (<Typography color="error">Комната переполнена</Typography>)}
+                    </Box>
                     <FormControl fullWidth>
                       <Autocomplete
                         multiple
@@ -444,6 +478,7 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
                           slotProps={{
                             textField: {
                               variant: "outlined",
+                              error: timeError,
                               sx: {
                                 "& .MuiOutlinedInput-root": {
                                   borderRadius: "0px", 
@@ -470,6 +505,7 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
                           slotProps={{
                             textField: {
                               variant: "outlined",
+                              error: timeError,
                               sx: {
                                 "& .MuiOutlinedInput-root": {
                                   borderRadius: "0px", 

@@ -210,19 +210,21 @@ const EventsAdmin: React.FC<EventsProps> = ({ disableRoomElements = false, idRoo
                                 onChange={(e) => setNameFilter(e.target.value)}
                                 sx={{ width: isLaptop ? "100%" : "230px" }}
                             />
-                            <Select
-                                value={roomId}
-                                onChange={(e) => setRoomId(e.target.value as number | "")}
-                                displayEmpty
-                                sx={{ width: isLaptop ? "100%" : "230px", visibility: `${disableRoomElements ? 'collapse' : 'visible'}` }}
-                                >
-                                <MenuItem value="">Все комнаты</MenuItem>
-                                {rooms.map((room) => (
-                                    <MenuItem key={room.id} value={room.id}>
-                                    {room.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
+                            {!disableRoomElements && (
+                                    <Select
+                                        value={roomId}
+                                        onChange={(e) => setRoomId(e.target.value as number | "")}
+                                        displayEmpty
+                                        sx={{ width: isLaptop ? "100%" : "230px", }}
+                                        >
+                                        <MenuItem value="">Все комнаты</MenuItem>
+                                        {rooms.map((room) => (
+                                            <MenuItem key={room.id} value={room.id}>
+                                            {room.name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                            )}
                         </Box>
                     </Box>
                 </Box>

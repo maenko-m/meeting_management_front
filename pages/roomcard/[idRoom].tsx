@@ -334,10 +334,6 @@ const visibleImages = images.slice(visibleStartIndex, visibleStartIndex + visibl
                                     </TableBody>
                                 </Table>
                             </TableContainer>
-                            <Button color={"primary"} variant={"contained"} className="book-button">
-                                <img src="/images/lock.svg"/>
-                                Забронировать
-                            </Button>
                         </div>
                     </div>
                     {loading ? <Typography>Загрузка</Typography> : 
