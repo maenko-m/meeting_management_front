@@ -9,10 +9,12 @@ import {
     TableRow,
     Paper,
     IconButton,
-    Box
+    Box, 
+    useMediaQuery
 } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import { KeyboardArrowUp, KeyboardArrowDown  } from "@mui/icons-material";
 import React, { useRef, useState, useEffect } from "react";
 
 import theme from '../../styles/theme';
@@ -26,6 +28,8 @@ import EventsAdmin from "../eventsadmin";
 import { useNotification } from '../../context/NotificationContext';
 
 const MeetingRoomCard = () => {
+    const isMobile = useMediaQuery("(max-width:600px)");    
+
     const [meetingRoom, setMeetingRoom] = useState<FullMeetingRoom>();
     const [loadingRoom, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -89,6 +93,22 @@ const MeetingRoomCard = () => {
         setTouchMove(null);
         setOffset(0);
     };
+
+    const images = meetingRoom?.photoPath ?? [];
+const [visibleStartIndex, setVisibleStartIndex] = useState(0);
+const visibleCount = 3;
+
+const handleScrollUp = () => {
+    setVisibleStartIndex(prev => Math.max(prev - 1, 0));
+};
+
+const handleScrollDown = () => {
+    setVisibleStartIndex(prev =>
+        Math.min(prev + 1, images.length - visibleCount)
+    );
+};
+
+const visibleImages = images.slice(visibleStartIndex, visibleStartIndex + visibleCount);
 
     const translateX = -currentIndex * getSliderWidth() + offset;
 
@@ -158,7 +178,7 @@ const MeetingRoomCard = () => {
             <ThemeProvider theme={theme}>
                 <div className="content">
                     <div className="title-container">
-                        <Typography variant='h5' sx={{ padding: "12px 0", marginLeft: "50px" }} >Переговорная комната - {meetingRoom?.name}</Typography>
+                        <Typography variant='h5' sx={{ padding: "12px 0", marginLeft: isMobile? "50px" : "0px" }} >Переговорная комната - {meetingRoom?.name}</Typography>
                         <Button color="secondary" sx={{backgroundColor: '#eee'}} onClick={() => {router.push('/rooms')}}>
                             К списку комнат
                         </Button>
@@ -200,15 +220,25 @@ const MeetingRoomCard = () => {
                                 </div>
                         </div>
                         <div className="image-selector">
-                            <div className="image-selector__image-list">
-                                {meetingRoom?.photoPath.map((imageSrc, index) => (
-                                    <div key={index}
-                                        className={`image-selector__image-item ${
-                                        selectedImage === imageSrc ? "image-selector__image-item--active" : ""}`} onClick={() => handleImageClick(imageSrc)}>
-                                        <img src={imageSrc} alt={`Thumbnail ${index + 1}`} />
-                                    </div>
-                                ))}
+                            <div className="image-selector__image-wrapper">
+                                <div className="image-selector__image-list">
+                                    {visibleImages.map((imageSrc, index) => (
+                                        <div key={index}
+                                            className={`image-selector__image-item ${
+                                            selectedImage === imageSrc ? "image-selector__image-item--active" : ""}`} onClick={() => handleImageClick(imageSrc)}>
+                                            <img src={imageSrc} alt={`Thumbnail ${index + 1}`} />
+                                        </div>
+                                    ))}
+                                </div>
+                                {images.length > visibleCount && visibleStartIndex > 0 && (
+                                    <button onClick={handleScrollUp} className="image-selector__arrow image-selector__arrow--up"><KeyboardArrowUp /></button>
+                                )}
+                                {images.length > visibleCount &&
+                                    visibleStartIndex + visibleCount < images.length && (
+                                    <button onClick={handleScrollDown} className="image-selector__arrow image-selector__arrow--down"><KeyboardArrowDown /></button>
+                                )}
                             </div>
+                            
                             <div className="image-selector__selected-image">
                                 <motion.img
                                     key={selectedImage}

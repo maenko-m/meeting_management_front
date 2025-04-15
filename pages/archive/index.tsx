@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Box, ThemeProvider, TextField, Button, Checkbox, FormControlLabel, Select, MenuItem, Typography, TableContainer, Table, TableHead, TableRow, TableCell, Paper, IconButton, Menu, Collapse, TableBody, useMediaQuery, Stack, Pagination } from "@mui/material";
 
 import { ArrowDownward, ArrowUpward, KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
-import '../../styles/global.css';
 
 import theme from '../../styles/theme';
 import { fetchOffices } from "../../api/offices";
@@ -153,7 +152,7 @@ const ProfilePage = () => {
                             <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 2 }}>
                                 <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: isMobile ? "flex-end" : "center", flexDirection: isMobile ? "column" : "row", gap: 1 }}>
                                     <Box sx={{ display: "flex", gap: 1}}>
-                                        <Typography variant="h5" sx={{ whiteSpace: "nowrap", padding: "12px 0" }} >Архив мероприятий</Typography>
+                                        <Typography variant="h5" sx={{ padding: "12px 0", marginLeft: isMobile? "50px" : "0px", textAlign: "end" }} >Архив мероприятий</Typography>
                                         <Typography sx={{ color: "#A3A3A3" }}>
                                             {eventsLoading ? (0) : eventsError ? (0) : (eventsAmount)}
                                         </Typography>

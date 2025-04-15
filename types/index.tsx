@@ -55,7 +55,7 @@ export interface Event {
   author: Employee;
   employees: Employee[];
   timeStart: string; 
-  timeEnd: string; 
+  timeEnd: string;
   meetingRoomName: string;
   meetingRoomId: number;
   recurrenceTypeValue?: string;

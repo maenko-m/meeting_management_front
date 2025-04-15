@@ -102,7 +102,7 @@ const MeetingRooms = () => {
                     {/* Фильтрация */}
                     <Box sx={{ display: "flex", alignItems: isLaptop2 ? "stetch" : "center", justifyContent: "space-between", marginBottom: "1em", flexDirection: isLaptop2 ? "column" : "row", gap: 1 }}>
                         <Box sx={{ display: "flex", gap: 1, justifyContent: isMobile ? "flex-end" : "flex-start" }} >
-                            <Typography variant='h5' sx={{ whiteSpace: "nowrap", padding: "12px 0" }}>Переговорные комнаты</Typography>
+                            <Typography variant='h5' sx={{ padding: "12px 0", marginLeft: isMobile? "50px" : "0px", textAlign: "end" }}>Переговорные комнаты</Typography>
                             <Typography sx={{ color: "#A3A3A3" }}>
                                 {loading ? (0) : error ? (0) : (roomsAmount)}
                             </Typography>
