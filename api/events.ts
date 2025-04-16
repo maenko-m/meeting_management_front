@@ -43,7 +43,30 @@ export const fetchEvents = async (filters: EventFilters = {}): Promise<Paginated
     }
 
     const data: PaginatedResponse<Event> = await response.json();
-    return data;
+
+    const convertedData: PaginatedResponse<Event> = {
+      ...data,
+      data: data.data.map((event) => {
+        const dateTimeStart = new Date(`${event.date}T${event.timeStart}Z`);
+        const dateTimeEnd = new Date(`${event.date}T${event.timeEnd}Z`);
+
+        const formatTime = (date: Date): string => {
+          return date.toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          }).replace(/,/g, '');
+        };
+
+        return {
+          ...event,
+          timeStart: formatTime(dateTimeStart),
+          timeEnd: formatTime(dateTimeEnd),
+        };
+      }),
+    };
+
+    return convertedData;
   } catch (error) {
     console.error("Ошибка при запросе мероприятий:", error);
     throw error;
