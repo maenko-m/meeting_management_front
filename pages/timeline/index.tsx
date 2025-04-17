@@ -121,9 +121,9 @@ const Timeline = () => {
             <div>
                 {/* Заголовок */}
                 <Box sx={{ position: "sticky", top: 0, zIndex: 10 }}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", marginBottom: "1em", alignItems: isMobile ? "flex-end" : "center", flexDirection: isMobile ? "column" : "row", gap: 1}}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", marginBottom: "1em", alignItems: isMobile ? "flex-end" : "start", flexDirection: isMobile ? "column" : "row", gap: 1}}>
                         <Typography variant='h5' sx={{ padding: "12px 0" }} >Таймлайн</Typography>
-                        <Box sx={{ display: "flex", gap: 1 }}>
+                        <Box sx={{ display: "flex", gap: 1, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                             {officesLoading ? (
                                 <Typography>Загрузка офисов...</Typography>
                             ) : officesError ? (

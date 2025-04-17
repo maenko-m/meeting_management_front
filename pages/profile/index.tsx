@@ -32,7 +32,7 @@ const ProfilePage = () => {
     const [offices, setOffices] = useState<Office[]>([]);
     const [defaultOfficeId, setDefaultOfficeId] = useState<number | null>(null);
 
-    const { user, loading, updateUser } = useAuth();
+    const { user, loading, updateUser, hasRole } = useAuth();
     const { showNotification } = useNotification()
 
     const [isEditingPassword, setIsEditingPassword] = useState(false);
@@ -160,9 +160,10 @@ const ProfilePage = () => {
                 <Box sx={{ display: "flex", justifyContent: "space-between", marginBottom: "1em", alignItems: isMobile ? "flex-end" : "center", flexDirection: isMobile ? "column" : "row", gap: 1 }}>
                     <Typography variant="h5" sx={{ padding: "12px 0" }} >Профиль</Typography>
                     <Box sx={{ display:"flex", gap: 2 }}>
-                        <Button sx={{ color: "secondary.main", background: "#EEEEEE" }} onClick={() => router.push('/archive')}>
-                            Архив мероприятий
-                        </Button>
+                        {(loading && !hasRole('ROLE_MODERATOR')) && (
+                          <Button sx={{ color: "secondary.main", background: "#EEEEEE" }} onClick={() => router.push('/archive')}>
+                              Архив мероприятий
+                          </Button>)}
                     </Box>
                 </Box>
                 <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: isMobile ? "79vh" : "83vh" }}>

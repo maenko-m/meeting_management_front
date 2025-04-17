@@ -307,10 +307,6 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
                     <img src='/images/people.svg' alt=''/>
                     <Typography>{selectedSize} человек</Typography>
                   </div>
-                  <div className='event-form-info-item'>
-                    <img src={access === 'private' ? '/images/lock.svg' : '/images/open.svg'} alt=''/>
-                    <Typography>{access === 'private' ? 'Приватная' : 'Публичная'} комната</Typography>
-                  </div>
                 </div>
               </div>
               <div className='event-form-scroll-box'>
