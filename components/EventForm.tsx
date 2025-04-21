@@ -60,6 +60,7 @@ interface RepeatSettings {
 
 const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEvent }) => {
   const isMobile = useMediaQuery("(max-width:600px)");
+  const [eventId, seteventId] = useState<number | null>(null);
   const [eventName, setEventName] = useState("");
   const [eventDesc, setEventDesc] = useState("");
   const [eventOfficeId, setEventOfficeId] = useState<number | null>(null);
@@ -92,7 +93,7 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
 
   const isOverSize = selectedUsers.length > selectedSize;
 
-  const currentEvent = { date: selectedDate!, timeStart: selectedTimeStart!, timeEnd: selectedTimeEnd!, idRoom: eventRoomId!};
+  const currentEvent = { id: eventId!, date: selectedDate!, timeStart: selectedTimeStart!, timeEnd: selectedTimeEnd!, idRoom: eventRoomId!};
 
   const [isRepeatChecked, setIsRepeatChecked] = useState(false);
   const [repeatSettings, setRepeatSettings] = useState<RepeatSettings | null>(null);

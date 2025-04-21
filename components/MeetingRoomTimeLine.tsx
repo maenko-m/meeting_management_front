@@ -8,6 +8,7 @@ import { hasOverlap } from '../utils/eventUtils';
 import { calculateEventPosition } from '../utils/eventUtils';
 
 interface CurrentEvent {
+  id: number;
   date: Dayjs;
   timeStart: Dayjs;
   timeEnd: Dayjs;

@@ -29,6 +29,7 @@ import { useNotification } from '../../context/NotificationContext';
 
 const MeetingRoomCard = () => {
     const isMobile = useMediaQuery("(max-width:600px)");    
+    const isLaptop2 = useMediaQuery("(max-width:1560px)");  
 
     const [meetingRoom, setMeetingRoom] = useState<FullMeetingRoom>();
     const [loadingRoom, setLoading] = useState(true);
@@ -338,7 +339,7 @@ const visibleImages = images.slice(visibleStartIndex, visibleStartIndex + visibl
                     </div>
                     {loading ? <Typography>Загрузка</Typography> : 
                         hasRole('ROLE_MODERATOR') ? (
-                            <EventsAdmin disableRoomElements={true} idRoom={Number(idRoom)} />
+                            <EventsAdmin disableRoomElements={true} idRoom={Number(idRoom)} showAuthorColumn={true} />
                         ) : (
                             <Events disableRoomElements={true} idRoom={Number(idRoom)} />
                         )
@@ -346,7 +347,7 @@ const visibleImages = images.slice(visibleStartIndex, visibleStartIndex + visibl
                     <div className="title-container" style={{marginTop: '48px'}}>
                         <Typography variant='h5'>Календарь занятости</Typography>
                     </div>
-                    <iframe className="calandar-frame" src={`https://calendar.yandex.ru/embed/week?&layer_ids=${meetingRoom?.calendarCode.replace('events-','')}&tz_id=Asia/Yekaterinburg&layer_names=Комната 213`}/>
+                    <iframe style={{ height: isLaptop2 ? "95vh" : "85vh" }} className="calandar-frame" src={`https://calendar.yandex.ru/embed/week?&layer_ids=${meetingRoom?.calendarCode.replace('events-','')}&tz_id=Asia/Yekaterinburg&layer_names=Комната 213`}/>
                 </div>
             </ThemeProvider>
         </div>

@@ -1,5 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, ThemeProvider, Tooltip, Grid, useMediaQuery } from "@mui/material";
+import React, { useState, useEffect, useRef  } from 'react';
+import { Box, Typography, Button, ThemeProvider, Tooltip, Grid, TextField, useMediaQuery } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs, { Dayjs } from 'dayjs';
+import 'dayjs/locale/ru';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 
 import theme from '../../styles/theme';
@@ -39,7 +44,9 @@ const Timeline = () => {
     const [events, setEvents] = useState<Event[]>([]);
 
     const [selectedOfficeId, setSelectedOfficeId] = useState<number | null>(null);
-    const [currentDate, setCurrentDate] = useState(new Date());
+    const [currentDate, setCurrentDate] = useState<Dayjs>(dayjs());
+    const inputRef = useRef<HTMLInputElement | null>(null);
+    const [openPicker, setOpenPicker] = useState(false);
 
     const [officesLoading, setOfficesLoading] = useState(true);
     const [officesError, setOfficesError] = useState<string | null>(null);
@@ -48,15 +55,8 @@ const Timeline = () => {
 
     const { showNotification } = useNotification()
 
-    const formatDate = (date) => {
-        const options = { weekday: 'long', day: 'numeric', month: 'long' };
-        return date.toLocaleDateString('ru-RU', options);
-    };
-
     const changeDate = (days: number) => {
-        const newDate = new Date(currentDate);
-        newDate.setDate(newDate.getDate() + days);
-        setCurrentDate(newDate);
+        setCurrentDate(prev => prev.add(days, 'day'));
     };
 
     useEffect(() => {
@@ -144,24 +144,41 @@ const Timeline = () => {
                     </Box>
 
                     {/* Переключатель даты */}
-                    <Box sx={{
-                    width: '100%', 
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginBottom: '1em',
-                    border: '1px solid #A3A3A3',
-                    boxSizing: 'border-box', }} >
-                        <Button color='secondary' onClick={() => changeDate(-1)}>
-                            <ChevronLeft />
-                        </Button>
-                        <Typography sx={{ textAlign: 'center' }}>
-                            {formatDate(currentDate)}
-                        </Typography>
-                        <Button color='secondary' onClick={() => changeDate(1)}>
-                            <ChevronRight />
-                        </Button>
-                    </Box>
+                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
+                        <Box sx={{
+                            width: '100%',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            marginBottom: '1em',
+                            border: '1px solid #A3A3A3',
+                            boxSizing: 'border-box',
+                        }}>
+                            <Button color='secondary' onClick={() => changeDate(-1)}><ChevronLeft /></Button>
+                            <DatePicker
+                            value={currentDate}
+                            onChange={(newValue) => {
+                                if (newValue) setCurrentDate(newValue);
+                            }}
+                            slots={{ textField: TextField }}
+                            slotProps={{
+                                textField: {
+                                  inputRef,
+                                  variant: "outlined", 
+                                  sx: {
+                                    "& .MuiOutlinedInput-notchedOutline": {
+                                        border: "none",
+                                    },
+                                    "& .MuiInputBase-input": {
+                                        textAlign: "center", // Центровка текста
+                                    },
+                                  }
+                                }
+                            }}
+                            />
+                            <Button color='secondary' onClick={() => changeDate(1)}><ChevronRight /></Button>
+                        </Box>
+                    </LocalizationProvider>
                 </Box>
 
                 {/* Таймлайн */}

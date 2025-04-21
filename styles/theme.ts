@@ -64,7 +64,6 @@ const theme = createTheme({
           backgroundColor: '#E3E3E3',
           color: '#858585',
           padding: '12px 16px',
-          // borderLeft: '1px solid #858585', 
         },
         body: {
           color: '#333',
@@ -86,7 +85,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           "& .MuiPaper-root": {
-            border: "2px solid #1976d2",
+            border: "2px solid #603F99",
             borderRadius: "4px", 
           },
         },
@@ -95,7 +94,7 @@ const theme = createTheme({
     MuiPopover: {
       styleOverrides: {
         paper: {
-          border: "2px solid #1976d2",
+          border: "2px solid #603F99",
           borderRadius: "4px",
         },
       },

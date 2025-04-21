@@ -3,16 +3,14 @@ import dayjs from 'dayjs';
 import { Event } from '../types'
 
 interface CurrentEvent {
+  id: number;
   date: Dayjs;
   timeStart: Dayjs;
   timeEnd: Dayjs;
   idRoom: number;
 }
 
-export function hasOverlap(
-  currentEvent: CurrentEvent,
-  apiEvents: Event[]
-): boolean {
+export function hasOverlap(currentEvent: CurrentEvent, apiEvents: Event[]): boolean {
   const currentStart = currentEvent.timeStart;
   const currentEnd = currentEvent.timeEnd;
   const currentRoomId = currentEvent.idRoom;
@@ -22,11 +20,12 @@ export function hasOverlap(
     const apiEnd = dayjs(`${apiEvent.date} ${apiEvent.timeEnd}`, 'YYYY-MM-DD HH:mm:ss');
     const apiRoomId = apiEvent.meetingRoomId;
 
-    return (
+    const overlap =
       currentRoomId === apiRoomId &&
       currentStart.isBefore(apiEnd) &&
-      currentEnd.isAfter(apiStart)
-    );
+      currentEnd.isAfter(apiStart);
+
+    return overlap;
   });
 }
 
