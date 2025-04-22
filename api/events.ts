@@ -1,4 +1,6 @@
 import { Event, EventCreate, PaginatedResponse } from "../types";
+import { parseISO } from "date-fns";
+import { generateRecurringEvents } from "../utils/generateRecurringEvents";
 
 interface EventFilters {
   roomId?: number;
@@ -21,10 +23,6 @@ export const fetchEvents = async (filters: EventFilters = {}): Promise<Paginated
     if (filters.type) queryParams.append("type", filters.type);
     if (filters.date) queryParams.append("date", filters.date);
     if (filters.officeId) queryParams.append("office_id", filters.officeId.toString());
-    if (filters.isArchived) queryParams.append("archived", filters.isArchived);
-    if (filters.descOrder !== undefined) queryParams.append("desc_order", filters.descOrder.toString());
-    if (filters.page) queryParams.append("page", filters.page.toString());
-    if (filters.limit) queryParams.append("limit", filters.limit.toString());
 
     const url = `http://127.0.0.1:8000/api/event?${queryParams.toString()}`;
     console.log("Запрос:", url);
@@ -44,29 +42,65 @@ export const fetchEvents = async (filters: EventFilters = {}): Promise<Paginated
 
     const data: PaginatedResponse<Event> = await response.json();
 
-    const convertedData: PaginatedResponse<Event> = {
-      ...data,
-      data: data.data.map((event) => {
-        const dateTimeStart = new Date(`${event.date}T${event.timeStart}Z`);
-        const dateTimeEnd = new Date(`${event.date}T${event.timeEnd}Z`);
+    // Преобразуем время
+    const eventsWithFormattedTime = data.data.map((event) => {
+      const dateTimeStart = new Date(`${event.date}T${event.timeStart}Z`);
+      const dateTimeEnd = new Date(`${event.date}T${event.timeEnd}Z`);
 
-        const formatTime = (date: Date): string => {
-          return date.toLocaleTimeString('en-GB', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-          }).replace(/,/g, '');
-        };
+      const formatTime = (date: Date): string => {
+        return date.toLocaleTimeString('en-GB', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        }).replace(/,/g, '');
+      };
 
-        return {
-          ...event,
-          timeStart: formatTime(dateTimeStart),
-          timeEnd: formatTime(dateTimeEnd),
-        };
-      }),
+      return {
+        ...event,
+        timeStart: formatTime(dateTimeStart),
+        timeEnd: formatTime(dateTimeEnd),
+      };
+    });
+
+    console.log(data.data);
+    // Расширяем события повторами
+    const allEvents = generateRecurringEvents(eventsWithFormattedTime);
+    console.log(allEvents);
+    // Фильтрация по архиву
+    const now = new Date();
+
+    const filtered = allEvents.filter((e) => {
+      if (filters.isArchived === 'true') {
+        return parseISO(e.date) < now; // Только прошедшие
+      } else if (filters.isArchived === 'false') {
+        return parseISO(e.date) >= now; // Только будущие и текущие
+      } else {
+        return true; // isArchived === null → ничего не фильтруем
+      }
+    });
+
+    // Сортировка
+    const sorted = filtered.sort((a, b) => {
+      const aDate = new Date(`${a.date}T${a.timeStart}`);
+      const bDate = new Date(`${b.date}T${b.timeStart}`);
+      return filters.descOrder ? bDate.getTime() - aDate.getTime() : aDate.getTime() - bDate.getTime();
+    });
+
+    // Пагинация на сервере
+    const page = filters.page ?? 1;
+    const limit = filters.limit ?? sorted.length;
+    const offset = (page - 1) * limit;
+    const paginated = sorted.slice(offset, offset + limit);
+
+    return {
+      meta: {
+        total: sorted.length,
+        page: page,
+        limit: limit,
+        totalPages: Math.ceil(sorted.length / limit),
+      },
+      data: paginated,
     };
-
-    return convertedData;
   } catch (error) {
     console.error("Ошибка при запросе мероприятий:", error);
     throw error;

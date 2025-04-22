@@ -160,7 +160,7 @@ const ProfilePage = () => {
                 <Box sx={{ display: "flex", justifyContent: "space-between", marginBottom: "1em", alignItems: isMobile ? "flex-end" : "center", flexDirection: isMobile ? "column" : "row", gap: 1 }}>
                     <Typography variant="h5" sx={{ padding: "12px 0" }} >Профиль</Typography>
                     <Box sx={{ display:"flex", gap: 2 }}>
-                        {(loading && !hasRole('ROLE_MODERATOR')) && (
+                        {(!loading && hasRole("ROLE_USER")) && (
                           <Button sx={{ color: "secondary.main", background: "#EEEEEE" }} onClick={() => router.push('/archive')}>
                               Архив мероприятий
                           </Button>)}
@@ -207,9 +207,6 @@ const ProfilePage = () => {
                                 return <MenuItem key={office.id} value={office.id}>{office.name}</MenuItem>
                             })}
                         </Select>
-                        <FormControlLabel 
-                            control={<Checkbox checked={profile.emailNotifications} onChange={handleCheckboxChange} name="emailNotifications" />} 
-                            label="Уведомления на почту о мероприятиях" />
                         <FormControlLabel 
                             control={<Checkbox checked={profile.webPush} onChange={handleCheckboxChange} name="webPush" />}
                             label="Web-пуши о мероприятиях" />

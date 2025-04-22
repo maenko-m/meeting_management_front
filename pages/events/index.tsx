@@ -46,7 +46,7 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
     const [openRows, setOpenRows] = useState<{ [key: number]: boolean }>({});
     const [anchorEls, setAnchorEls] = useState<{ [key: number]: HTMLElement | null }>({});
 
-    const [eventsAmount, setEventsAmount] = useState<number[]>([0,0]);
+    const [eventsAmount, setEventsAmount] = useState<number>(0);
 
     const [dialogOpen, setDialogOpen] = useState(false);
     const [formOpen, setFormOpen] = useState(false);
@@ -67,8 +67,7 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
     }, [user, loading, hasRole, router]);
 
     const handleChange = (_: React.SyntheticEvent, newValue: number) => {
-        console.log(newValue);
-        console.log(value);
+        setEventsAmount(0);
         setValue(newValue);
     };
 
@@ -166,7 +165,7 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
         const data = await fetchEvents(filters);
         setEvents(data.data);
         console.log(data);
-        setEventsAmount([data.counts?.author ?? 0, data.counts?.member ?? 0]);
+        setEventsAmount(data.meta.total);
         setEventsTotalPages(data.meta.totalPages);
         } catch (err) {
             showNotification(
@@ -205,13 +204,17 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
                             <Tab label={
                                 <Box sx={{ display: "flex", gap: 1  }}>
                                     <Typography variant='h5' sx={{ color: value === 0 ? '#000' : '#A3A3A3' }}>Мои мероприятия</Typography>
-                                    <Typography sx={{ fontSize: '14px', color: '#A3A3A3', visibility: `${disableRoomElements ? 'collapse' : 'visible'}`  }}>{eventsAmount[0]}</Typography>
+                                    {(value === 0) && (
+                                        <Typography sx={{ fontSize: '14px', color: '#A3A3A3',  }}>{eventsAmount}</Typography>
+                                    )}  
                                 </Box>
                             } sx={{ opacity: value === 0 ? 1 : 0.5 }} />
                             <Tab label={
                                 <Box sx={{ display: "flex", gap: 1  }}>
                                     <Typography variant='h5' sx={{ color: value === 1 ? '#000' : '#A3A3A3' }}>Участвую</Typography>
-                                    <Typography sx={{ fontSize: '14px', color: '#A3A3A3', visibility: `${disableRoomElements ? 'collapse' : 'visible'}` }}>{eventsAmount[1]}</Typography>
+                                    {(value === 1) && (
+                                        <Typography sx={{ fontSize: '14px', color: '#A3A3A3',  }}>{eventsAmount}</Typography>
+                                    )}
                                 </Box>
                             } sx={{ opacity: value === 1 ? 1 : 0.5 }} />
                         </Tabs>
@@ -473,7 +476,7 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
                         authorId: selectedEvent!.author.id,
                         meetingRoomId: selectedEvent!.meetingRoomId,
                         employeeIds: selectedEvent!.employees.map((employee) => employee.id),
-                        date: selectedEvent!.date,
+                        date: selectedEvent!.originalDate ?? selectedEvent!.date,
                         timeStart: selectedEvent!.timeStart,
                         timeEnd: selectedEvent!.timeEnd,
                     }} 

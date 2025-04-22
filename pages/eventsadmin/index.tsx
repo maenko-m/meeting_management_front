@@ -273,7 +273,7 @@ const EventsAdmin: React.FC<EventsProps> = ({ disableRoomElements = false, idRoo
                             </TableRow>
                             ) : (
                             events.map((event, index) => (
-                                <React.Fragment key={index}>
+                                <React.Fragment key={`${event.id}-${event.date}`} >
                                 {/* Основная строка */}
                                 <TableRow sx={{
                                     '&:nth-of-type(odd)': {

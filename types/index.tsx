@@ -61,7 +61,8 @@ export interface Event {
   recurrenceTypeValue?: string;
   recurrenceInterval?: number;
   recurrenceEnd?: string;
-  parentEvent?: Event;
+  recurrenceParent?: Event;
+  originalDate?: string
 }
 
 export interface EventCreate {
