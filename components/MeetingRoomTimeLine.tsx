@@ -15,7 +15,6 @@ interface CurrentEvent {
   idRoom: number;
 }
 
-
 const colors = [
     'rgba(50, 193, 255, 0.7)',
     'rgba(50, 67, 255, 0.7)',
@@ -165,7 +164,13 @@ const MeetingRoomTimeline: React.FC<MeetingRoomTimelineProps> = ({
         <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>Ваше мероприятие</Typography>
       </Box>
 
-      {isElementLoaded && events.map((event, index) => {
+      {isElementLoaded && events
+      .filter((event) => {
+        const startHour = parseInt(event.timeStart.slice(0, 2));
+        const endHour = parseInt(event.timeEnd.slice(0, 2));
+        return startHour >= 6 && endHour <= 22;
+      })
+      .map((event, index) => {
         const { left, width } = calculateEventPosition(event.timeStart, event.timeEnd, timelineWidth);
         const colorIndex = index % colors.length;
 

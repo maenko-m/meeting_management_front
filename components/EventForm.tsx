@@ -174,6 +174,15 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
     } else {
       setTimeError(false);
     }
+
+    const isOutOfBounds = (time: Dayjs | null): boolean => time ? time.hour() < 6 || time.hour() >= 22 : false;
+    
+    if (selectedTimeStart && selectedTimeEnd) {
+      const hasError = selectedTimeStart.isAfter(selectedTimeEnd) || isOutOfBounds(selectedTimeStart) || isOutOfBounds(selectedTimeEnd);
+      setTimeError(hasError);
+    } else {
+      setTimeError(false);
+    }
   }, [selectedTimeStart, selectedTimeEnd]);
 
   const handleChangeOffice = (event: SelectChangeEvent<number>) => {
@@ -214,6 +223,29 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
     newAccess: "public" | "private" | null
   ) => {
     if (newAccess !== null) setAccess(newAccess);
+  };
+
+  const resetForm = () => {
+    seteventId(null);
+    setEventName("");
+    setEventDesc("");
+    setEventOfficeId(null);
+    setEventRoomId(null);
+    setSelectedUsers([]);
+    setSelectedDate(dayjs());
+    setTimeLineDate(dayjs()); 
+    setSelectedTimeStart(dayjs().set('hour', 6).set('minute', 0).set('second', 0));
+    setSelectedTimeEnd(dayjs().set('hour', 6).set('minute', 30).set('second', 0));
+    setSelectedTimeZone(0);
+    setSelectedSize(0);
+    setOpenRoomCalendar(false);
+    setAutocompleteDisabled(false);
+    setAccess("public");
+  };
+  
+  const handleClose = () => {
+    resetForm();
+    onClose();
   };
 
   const handleSubmit = async () => {
@@ -274,12 +306,16 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
           'success'
         );
       }
+      resetForm(); 
       onClose();
     } catch (err) {
       showNotification(
         "Произошла ошибка при сохранении мероприятия",
         'error'
       );
+    }finally {
+      resetForm();
+      onClose();
     }
   };
 
@@ -297,7 +333,7 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
                     <img src='/images/edit-event.svg' alt=''/>
                     <Typography variant='h5'>Редактировать мероприятие</Typography>
                   </div>
-                  <img src='/images/cross.svg' alt='' style={{cursor: 'pointer'}} onClick={onClose}/>
+                  <img src='/images/cross.svg' alt='' style={{cursor: 'pointer'}} onClick={handleClose}/>
                 </div>
                 <div className='event-form-info'>
                   <div className='event-form-info-item'>
@@ -606,7 +642,7 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
                       </Box>
                   </Box>
                   <Box sx={{display: "flex", gap: 2.5}}>
-                    <Button variant="outlined" color="secondary" fullWidth sx={{ height: "50px" }} onClick={onClose}>
+                    <Button variant="outlined" color="secondary" fullWidth sx={{ height: "50px" }} onClick={handleClose}>
                       <img src="/images/cancel-icon.svg" alt="icon" style={{ marginRight: 10 }} />
                       Отменить
                     </Button>
