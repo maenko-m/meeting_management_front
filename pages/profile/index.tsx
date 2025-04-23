@@ -56,7 +56,6 @@ const ProfilePage = () => {
         const value = e.target.value === 'none' ? null : Number(e.target.value);
         setProfile((prev) => ({ ...prev, officeId: value }));
         setDefaultOfficeId(value);
-        setIsEdited(true);
         if (value === null) {
           localStorage.removeItem('default_office_id');
         } else {
@@ -126,7 +125,7 @@ const ProfilePage = () => {
             setOffices(data);
 
             const storedOfficeId = localStorage.getItem('default_office_id');
-            setDefaultOfficeId(storedOfficeId ? parseInt(storedOfficeId, 10) : null);
+            setDefaultOfficeId(storedOfficeId ? Number(storedOfficeId) : null);
           } catch (err) {
             showNotification(
               "Не удалось загрузить офисы",

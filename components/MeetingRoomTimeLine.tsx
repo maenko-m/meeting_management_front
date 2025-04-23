@@ -58,7 +58,7 @@ const MeetingRoomTimeline: React.FC<MeetingRoomTimelineProps> = ({
           limit: 999,
       };
       const data = await fetchEvents(filters);
-      setEvents(data.data);
+      setEvents(data);
     } catch (err) {
         showNotification(
             "Не удалось загрузить мероприятия",
@@ -176,7 +176,7 @@ const MeetingRoomTimeline: React.FC<MeetingRoomTimelineProps> = ({
 
         return (
           <Tooltip
-            key={event.id}
+            key={`${event.id}-${event.date}`}
             title={
               <Box>
                 <Typography variant="body2">{event.name}</Typography>
@@ -186,7 +186,7 @@ const MeetingRoomTimeline: React.FC<MeetingRoomTimelineProps> = ({
             arrow
           >
             <Box
-              key={index}
+              key={`${event.id}-${event.date}`}
               sx={{
                 position: "absolute",
                 left,

@@ -63,7 +63,7 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
   const [eventId, seteventId] = useState<number | null>(null);
   const [eventName, setEventName] = useState("");
   const [eventDesc, setEventDesc] = useState("");
-  const [eventOfficeId, setEventOfficeId] = useState<number | null>(null);
+  const [eventOfficeId, setEventOfficeId] = useState<number | null>();
   const [eventRoomId, setEventRoomId] = useState<number | null>(null);
   const [selectedUsers, setSelectedUsers] = useState<Employee[]>([]);
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
@@ -80,6 +80,7 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
 
   const [offices, setOffices] = useState<Office[]>([]);
   const [rooms, setRooms] = useState<MeetingRoom[]>([]);
+  const [roomsLoading, setRoomsLoading] = useState<boolean>(true);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const { showNotification } = useNotification()
 
@@ -120,19 +121,28 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [officesData, roomsData, employeesData] = await Promise.all([
+        setRoomsLoading(true);
+        const [officesData, employeesData] = await Promise.all([
           fetchOffices(),
-          fetchMeetingRooms(),
           fetchEmployees(),
         ]);
         setOffices(officesData);
-        setRooms(roomsData.data);
         setEmployees(employeesData);
 
+        const defaultOfficeId = () => {
+          const storedId = localStorage.getItem('default_office_id');
+          return storedId ? Number(storedId) : officesData[0].id;
+        };
+
         if (officesData.length > 0) {
-          setEventOfficeId(officesData[0].id);
-          setSelectedTimeZone(officesData[0].timeZone);
+          setEventOfficeId(defaultOfficeId());
+          setSelectedTimeZone(officesData.find(f => f.id == defaultOfficeId())!.timeZone);
         }
+
+        const roomsData = await fetchMeetingRooms({ officeId: defaultOfficeId() });
+        setRooms(roomsData.data);
+        
+
         if (roomsData.data.length > 0) {
           setEventRoomId(roomsData.data[0].id);
           setSelectedSize(roomsData.data[0].size);
@@ -142,6 +152,9 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
           "Ошибка загрузки данных",
           'error'
         );
+      }
+      finally {
+        setRoomsLoading(false);
       }
     };
     loadData();
@@ -155,6 +168,14 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
       setSelectedDate(dayjs(event.date));
       setSelectedTimeStart(dayjs(`${event.date} ${event.timeStart}`));
       setSelectedTimeEnd(dayjs(`${event.date} ${event.timeEnd}`));
+      if (event.recurrenceType) {
+        setIsRepeatChecked(true);
+        setRepeatSettings({
+          repeatType: event.recurrenceType as ('day' | 'week' | 'month' | 'year'),
+          frequency: event.recurrenceInterval!,
+          endDate: event.recurrenceEnd!
+        })
+      }
       setSelectedUsers(
         employees.filter((emp) => event.employeeIds.includes(emp.id))
       );
@@ -185,11 +206,33 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
     }
   }, [selectedTimeStart, selectedTimeEnd]);
 
-  const handleChangeOffice = (event: SelectChangeEvent<number>) => {
+  const handleChangeOffice = async (event: SelectChangeEvent<number>) => {
     const selectedId = Number(event.target.value);
     setEventOfficeId(selectedId);
+  
     const selectedOffice = offices.find((office) => office.id === selectedId);
-    if (selectedOffice) setSelectedTimeZone(selectedOffice.timeZone);
+    if (selectedOffice) {
+      setSelectedTimeZone(selectedOffice.timeZone);
+    }
+  
+    try {
+      setRoomsLoading(true);
+      const roomsData = await fetchMeetingRooms({ officeId: selectedId });
+      setRooms(roomsData.data);
+      
+      if (roomsData.data.length > 0) {
+        setEventRoomId(roomsData.data[0].id);
+        setSelectedSize(roomsData.data[0].size);
+      } else {
+        setEventRoomId(null);
+        setSelectedSize(0);
+      }
+    } catch (err) {
+      showNotification("Ошибка загрузки комнат", 'error');
+    }
+    finally {
+      setRoomsLoading(false);
+    }
   };
 
   const handleChangeRoom = (event: SelectChangeEvent<number>) => {
@@ -198,7 +241,6 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
     const selectedRoom = rooms.find((room) => room.id === selectedId);
     if (selectedRoom) {
       setSelectedSize(selectedRoom.size);
-      setAccess(selectedRoom.isPublic === true ? "public" : "private");
       setSelectedUsers(selectedRoom.employees);
       setAutocompleteDisabled(selectedRoom.employees.length > 0);
     }
@@ -218,12 +260,7 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
     setSelectedUsers((prev) => prev.filter((user) => user.id !== userToDelete.id));
   };
 
-  const handleAccessChange = (
-    event: React.MouseEvent<HTMLElement>,
-    newAccess: "public" | "private" | null
-  ) => {
-    if (newAccess !== null) setAccess(newAccess);
-  };
+  
 
   const resetForm = () => {
     seteventId(null);
@@ -399,15 +436,21 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
                       </Typography>
                       <FormControl fullWidth>
                         <Select
-                          value={eventRoomId}
+                          value={roomsLoading ? 0 : eventRoomId}
                           onChange={handleChangeRoom}
                           displayEmpty
                           variant="outlined"
                           sx={{borderRadius: '0px', height: '50px'}}
                         >
-                          {rooms.map((room) => {
-                            return <MenuItem key={room.id} value={room.id}>{room.name}</MenuItem>
-                          })}
+                          {roomsLoading ? (
+                            <MenuItem value={0}>Загрузка...</MenuItem>
+                          ) : (
+                            rooms.map((room) => (
+                              <MenuItem key={room.id} value={room.id}>
+                                {room.name}
+                              </MenuItem>
+                            ))
+                          )}
                         </Select>
                       </FormControl>
                     </Box>
@@ -474,7 +517,7 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
                   <Box sx={{display: "flex", gap: 3, justifyContent: 'space-between', alignItems: 'end'}}>
                     <Box sx={{display: "flex", flexDirection: "column", gap: 0.5}}>
                       <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                        Дата
+                        Дата начала
                       </Typography>
                       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
                         <DatePicker
@@ -553,7 +596,7 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
                         />
                       </LocalizationProvider>
                     </Box>
-                    <Box sx={{display: (mode === 'edit') ? 'none' : 'flex', alignItems: 'center'}}>
+                    <Box sx={{display: 'flex', alignItems: 'center'}}>
                         <Box
                           sx={{ display: 'flex', alignItems: 'center' }}
                         >

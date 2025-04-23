@@ -67,7 +67,13 @@ const Timeline = () => {
             const officesData = await fetchOffices(); 
             setOffices(officesData);
             if (officesData.length > 0) {
-              setSelectedOfficeId(officesData[0].id); 
+                const storedId = localStorage.getItem('default_office_id');
+                if (storedId) {
+                    setSelectedOfficeId(Number(storedId)); 
+                }
+                else {
+                    setSelectedOfficeId(officesData[0].id); 
+                }
             }
           } catch (err) {
             showNotification(
@@ -98,7 +104,7 @@ const Timeline = () => {
               officeId: selectedOfficeId,
               date: formattedDate,
             });
-            setEvents(eventsData.data);
+            setEvents(eventsData);
           } catch (err) {
             showNotification(
                 "Не удалось загрузить комнаты или мероприятия",

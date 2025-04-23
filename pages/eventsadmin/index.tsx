@@ -59,9 +59,9 @@ const EventsAdmin: React.FC<EventsProps> = ({ disableRoomElements = false, idRoo
     const [roomId, setRoomId] = useState<number | "">(idRoom ? idRoom : "");
     const [descOrder, setDescOrder] = useState<boolean>(false);
     const [page, setPage] = useState(1);
-    const [limit] = useState(10);
 
     const [eventsTotalPages, setEventsTotalPages] = useState<number>(1);
+    const [currentPageEvents, setCurrentPageEvents] = useState<Event[]>([]);
   
     const toggleRow = (index: number) => {
         setOpenRows((prev) => ({ ...prev, [index]: !prev[index] }));
@@ -143,13 +143,13 @@ const EventsAdmin: React.FC<EventsProps> = ({ disableRoomElements = false, idRoo
             roomId: roomId === "" ? undefined : roomId,
             name: nameFilter || undefined,
             descOrder,
-            page,
-            limit,
           };
           const data = await fetchEvents(filters);
-          setEvents(data.data);
-          setEventsAmount(data.meta.total);
-          setEventsTotalPages(data.meta.totalPages);
+          setEvents(data);
+          setEventsAmount(data.length);
+          setEventsTotalPages(Math.ceil(data.length / 10));
+          setPage(1); 
+          setCurrentPageEvents(data.slice(0, 10));
         } catch (err) {
             showNotification(
                 "Не удалось загрузить мероприятия",
@@ -162,11 +162,14 @@ const EventsAdmin: React.FC<EventsProps> = ({ disableRoomElements = false, idRoo
     
     useEffect(() => {
         loadEvents();
-    }, [nameFilter, roomId, descOrder, page, limit]);
+    }, [nameFilter, roomId, descOrder]);
 
     const handlePageChange = (event: React.ChangeEvent<unknown>, newPage: number) => {
         setPage(newPage);
-      };
+        const startIndex = (newPage - 1) * 10;
+        const endIndex = startIndex + 10;
+        setCurrentPageEvents(events.slice(startIndex, endIndex));
+    };
 
     if (loading) {
         return (
@@ -272,7 +275,7 @@ const EventsAdmin: React.FC<EventsProps> = ({ disableRoomElements = false, idRoo
                                 </TableCell>
                             </TableRow>
                             ) : (
-                            events.map((event, index) => (
+                            currentPageEvents.map((event, index) => (
                                 <React.Fragment key={`${event.id}-${event.date}`} >
                                 {/* Основная строка */}
                                 <TableRow sx={{
@@ -294,7 +297,7 @@ const EventsAdmin: React.FC<EventsProps> = ({ disableRoomElements = false, idRoo
                                     <TableCell sx={{ whiteSpace: "nowrap" }} >{event.date}</TableCell>
                                     <TableCell>{event.timeStart}</TableCell>
                                     <TableCell>{event.timeEnd}</TableCell>
-                                    <TableCell sx={{ whiteSpace: "nowrap" }}>{event.recurrenceInterval ? `Каждый(ую) ${event.recurrenceInterval} ${repeatTypeTranslations[event.recurrenceTypeValue!]}, до ${event.recurrenceEnd}` : "Нет повторов"}</TableCell>
+                                    <TableCell sx={{ whiteSpace: "nowrap" }}>{event.recurrenceInterval ? `Каждый (ую) ${event.recurrenceInterval} ${repeatTypeTranslations[event.recurrenceTypeValue!]}, до ${event.recurrenceEnd}` : "Нет повторов"}</TableCell>
                                     <TableCell align="center">
                                         <IconButton onClick={handleClick(index)} sx={{ padding: "0" }} >
                                             <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#858585"><path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/></svg>
@@ -307,13 +310,13 @@ const EventsAdmin: React.FC<EventsProps> = ({ disableRoomElements = false, idRoo
                                                 <svg height="20px" viewBox="0 -960 960 960" width="20px">
                                                     <path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z" />
                                                 </svg>
-                                                Изменить данные
+                                                {event.recurrenceInterval ? 'Изменить серию' : 'Изменить мероприятие'} 
                                             </MenuItem>
                                             <MenuItem sx={{ gap: 1 }} onClick={() => handleDeleteEvent(event)}>
                                                 <svg height="20px" viewBox="0 -960 960 960" width="20px">
                                                     <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
                                                 </svg>
-                                                Удалить мероприятие
+                                                {event.recurrenceInterval ? 'Удалить серию' : 'Удалить мероприятие'} 
                                             </MenuItem>
                                         </Menu>
                                     </TableCell>
@@ -370,9 +373,12 @@ const EventsAdmin: React.FC<EventsProps> = ({ disableRoomElements = false, idRoo
                         authorId: selectedEvent!.author.id,
                         meetingRoomId: selectedEvent!.meetingRoomId,
                         employeeIds: selectedEvent!.employees.map((employee) => employee.id),
-                        date: selectedEvent!.date,
+                        date: selectedEvent!.originalDate ?? selectedEvent!.date,
                         timeStart: selectedEvent!.timeStart,
                         timeEnd: selectedEvent!.timeEnd,
+                        recurrenceType: selectedEvent!.recurrenceTypeValue,
+                        recurrenceInterval: selectedEvent!.recurrenceInterval,
+                        recurrenceEnd: selectedEvent!.recurrenceEnd
                     }} 
                     idEvent={formMode === 'create' ? null : selectedEvent!.id}/>
                 <ConfirmComponent />

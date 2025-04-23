@@ -14,7 +14,7 @@ interface EventFilters {
   limit?: number;
 }
 
-export const fetchEvents = async (filters: EventFilters = {}): Promise<PaginatedResponse<Event>> => {
+export const fetchEvents = async (filters: EventFilters = {}): Promise<Event[]> => {
   try {
     const queryParams = new URLSearchParams();
 
@@ -62,10 +62,8 @@ export const fetchEvents = async (filters: EventFilters = {}): Promise<Paginated
       };
     });
 
-    console.log(data.data);
     // Расширяем события повторами
     const allEvents = generateRecurringEvents(eventsWithFormattedTime);
-    console.log(allEvents);
     // Фильтрация по архиву
     const now = new Date();
 
@@ -86,21 +84,8 @@ export const fetchEvents = async (filters: EventFilters = {}): Promise<Paginated
       return filters.descOrder ? bDate.getTime() - aDate.getTime() : aDate.getTime() - bDate.getTime();
     });
 
-    // Пагинация на сервере
-    const page = filters.page ?? 1;
-    const limit = filters.limit ?? sorted.length;
-    const offset = (page - 1) * limit;
-    const paginated = sorted.slice(offset, offset + limit);
 
-    return {
-      meta: {
-        total: sorted.length,
-        page: page,
-        limit: limit,
-        totalPages: Math.ceil(sorted.length / limit),
-      },
-      data: paginated,
-    };
+    return sorted;
   } catch (error) {
     console.error("Ошибка при запросе мероприятий:", error);
     throw error;

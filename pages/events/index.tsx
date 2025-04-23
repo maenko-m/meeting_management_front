@@ -40,7 +40,6 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
     const [roomId, setRoomId] = useState<number | "">(idRoom ? idRoom : "");
     const [descOrder, setDescOrder] = useState<boolean>(false);
     const [page, setPage] = useState(1);
-    const [limit] = useState(10);
 
 
     const [openRows, setOpenRows] = useState<{ [key: number]: boolean }>({});
@@ -59,6 +58,7 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
     const { confirm, ConfirmComponent } = useConfirmDialog();
 
     const [eventsTotalPages, setEventsTotalPages] = useState<number>(1);
+    const [currentPageEvents, setCurrentPageEvents] = useState<Event[]>([]);
 
     useEffect(() => {
             if (!loading && (hasRole('ROLE_MODERATOR')) && !disableRoomElements) {
@@ -159,14 +159,13 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
             type: value === 0 ? "организатор" : "участник",
             isArchived: 'false',
             descOrder,
-            page,
-            limit,
         };
         const data = await fetchEvents(filters);
-        setEvents(data.data);
-        console.log(data);
-        setEventsAmount(data.meta.total);
-        setEventsTotalPages(data.meta.totalPages);
+        setEvents(data);
+        setEventsAmount(data.length);
+        setEventsTotalPages(Math.ceil(data.length / 10));
+        setPage(1); 
+        setCurrentPageEvents(data.slice(0, 10));
         } catch (err) {
             showNotification(
                 "Не удалось загрузить мероприятия",
@@ -181,16 +180,19 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
     useEffect(() => {
 
         loadEvents();
-    }, [value, nameFilter, roomId, descOrder, page, limit]);
+    }, [value, nameFilter, roomId, descOrder]);
 
     const handlePageChange = (event: React.ChangeEvent<unknown>, newPage: number) => {
         setPage(newPage);
+        const startIndex = (newPage - 1) * 10;
+        const endIndex = startIndex + 10;
+        setCurrentPageEvents(events.slice(startIndex, endIndex));
     };
 
 
     if (loading || hasRole('ROLE_MODERATOR')) {
         return (
-        null
+            null
         );
     }
 
@@ -290,7 +292,7 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
                                 </TableRow>
                                 ) : (
                                 events.map((event, index) => (
-                                    <React.Fragment key={event.id}>
+                                    <React.Fragment key={`${event.id}-${event.date}`}>
                                     <TableRow
                                         sx={{
                                         "&:nth-of-type(odd)": { backgroundColor: "#FFFFFF" },
@@ -320,13 +322,13 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
                                                 <svg height="20px" viewBox="0 -960 960 960" width="20px">
                                                     <path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z" />
                                                 </svg>
-                                                Изменить данные
+                                                {event.recurrenceInterval ? 'Изменить серию' : 'Изменить мероприятие'} 
                                             </MenuItem>
                                             <MenuItem sx={{ gap: 1 }} onClick={() => handleDeleteEvent(event)}>
                                                 <svg height="20px" viewBox="0 -960 960 960" width="20px">
                                                     <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
                                                 </svg>
-                                                Удалить мероприятие
+                                                {event.recurrenceInterval ? 'Удалить серию' : 'Удалить мероприятие'} 
                                             </MenuItem>
                                         </Menu>
                                         </TableCell>
