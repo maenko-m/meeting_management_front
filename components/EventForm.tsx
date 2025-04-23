@@ -266,8 +266,6 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
     seteventId(null);
     setEventName("");
     setEventDesc("");
-    setEventOfficeId(null);
-    setEventRoomId(null);
     setSelectedUsers([]);
     setSelectedDate(dayjs());
     setTimeLineDate(dayjs()); 
@@ -277,7 +275,8 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
     setSelectedSize(0);
     setOpenRoomCalendar(false);
     setAutocompleteDisabled(false);
-    setAccess("public");
+    setRepeatSettings(null);
+    setIsRepeatChecked(false);
   };
   
   const handleClose = () => {
@@ -550,10 +549,17 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
                         <TimePicker
                           value={selectedTimeStart}
                           onChange={(newValue) => setSelectedTimeStart(newValue)}
+                          minTime={dayjs().set('hour', 6).set('minute', 0)} 
+                          maxTime={dayjs().set('hour', 22).set('minute', 0)} 
+                          skipDisabled 
+                          shouldDisableTime={(value, view) => {
+                            const hour = value.hour();
+                            return hour < 6 || hour > 22; 
+                          }}
                           slots={{ textField: TextField }}
                           slotProps={{
                             textField: {
-                              variant: "outlined",
+                              variant: 'outlined',
                               error: timeError,
                               sx: {
                                 "& .MuiOutlinedInput-root": {
@@ -577,6 +583,13 @@ const EventForm: React.FC<EventFormProps> = ({ open, onClose, mode, event, idEve
                         <TimePicker
                           value={selectedTimeEnd}
                           onChange={(newValue) => setSelectedTimeEnd(newValue)}
+                          minTime={dayjs().set('hour', 6).set('minute', 0)} 
+                          maxTime={dayjs().set('hour', 22).set('minute', 0)} 
+                          skipDisabled 
+                          shouldDisableTime={(value, view) => {
+                            const hour = value.hour();
+                            return hour < 6 || hour > 22; 
+                          }}
                           slots={{ textField: TextField }}
                           slotProps={{
                             textField: {

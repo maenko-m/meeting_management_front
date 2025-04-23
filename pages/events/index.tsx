@@ -278,20 +278,20 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
                             <TableBody>
                             {eventsLoading ? (
                                 <TableRow>
-                                    <TableCell colSpan={7}>
+                                    <TableCell colSpan={8}>
                                     <Typography align="center">Загрузка...</Typography>
                                     </TableCell>
                                 </TableRow>
                                 ) : eventsError ? (
                                 <TableRow>
-                                    <TableCell colSpan={7}>
+                                    <TableCell colSpan={8}>
                                     <Typography align="center" color="error">
                                         {eventsError}
                                     </Typography>
                                     </TableCell>
                                 </TableRow>
                                 ) : (
-                                events.map((event, index) => (
+                                currentPageEvents.map((event, index) => (
                                     <React.Fragment key={`${event.id}-${event.date}`}>
                                     <TableRow
                                         sx={{
@@ -387,21 +387,21 @@ const MyEvents: React.FC<EventsProps> = ({ disableRoomElements = false, idRoom }
                             <TableBody>
                                 {eventsLoading ? (
                                     <TableRow>
-                                        <TableCell colSpan={7}>
+                                        <TableCell colSpan={8}>
                                         <Typography align="center">Загрузка...</Typography>
                                         </TableCell>
                                     </TableRow>
                                     ) : eventsError ? (
                                     <TableRow>
-                                        <TableCell colSpan={7}>
+                                        <TableCell colSpan={8}>
                                         <Typography align="center" color="error">
                                             {eventsError}
                                         </Typography>
                                         </TableCell>
                                     </TableRow>
                                     ) : (
-                                    events.map((event, index) => (
-                                        <React.Fragment key={event.id} >
+                                    currentPageEvents.map((event, index) => (
+                                        <React.Fragment key={`${event.id}-${event.date}`} >
                                         <TableRow
                                             sx={{
                                             "&:nth-of-type(odd)": { backgroundColor: "#FFFFFF" },

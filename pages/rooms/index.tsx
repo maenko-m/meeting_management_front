@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Select, MenuItem, Button, ThemeProvider, useMediaQuery, Stack, Pagination } from "@mui/material";
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Select, MenuItem, Button, ThemeProvider, useMediaQuery, Stack, Pagination, Chip } from "@mui/material";
 
 import theme from '../../styles/theme';
 import { MeetingRoom, Office } from "../../types";
@@ -92,8 +92,6 @@ const MeetingRooms = () => {
         setPage(newPage);
     };
 
-    const busyness = 1;
-
     return (
         <ThemeProvider theme={theme}>
             <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", height: isTablet ? "94vh" : "92vh" }}>
@@ -170,7 +168,26 @@ const MeetingRooms = () => {
                                     >
                                     <TableCell>{room.name}</TableCell>
                                     <TableCell>{room.office.name}</TableCell>
-                                    <TableCell>{busyness ? "Свободна" : "Занята" }</TableCell>
+                                    <TableCell>
+                                    {!room.isOccupied ? (
+                                        <Chip
+                                            label="Занята"
+                                            sx={{
+                                                backgroundColor: '#fff3e0', 
+                                                color: '#f57c00', 
+                                            }}
+                                        />
+                                    ) : (
+                                        <Chip
+                                            label="Свободна"
+                                            
+                                            sx={{
+                                                backgroundColor: '#e8f5e9', 
+                                                color: '#388e3c',
+                                            }}
+                                        />
+                                    )}
+                                    </TableCell>
                                     <TableCell>{room.size}</TableCell>
                                 </TableRow>
                                 ))

@@ -23,6 +23,7 @@ export interface MeetingRoom {
   access: boolean;
   isPublic: boolean;
   employees: Employee[];
+  isOccupied: boolean;
 }
   
 export interface FullMeetingRoom extends MeetingRoom {

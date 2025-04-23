@@ -262,13 +262,13 @@ const EventsAdmin: React.FC<EventsProps> = ({ disableRoomElements = false, idRoo
                         <TableBody>
                             {eventsLoading ? (
                             <TableRow>
-                                <TableCell colSpan={7}>
+                                <TableCell colSpan={8}>
                                 <Typography align="center">Загрузка...</Typography>
                                 </TableCell>
                             </TableRow>
                             ) : eventsError ? (
                             <TableRow>
-                                <TableCell colSpan={7}>
+                                <TableCell colSpan={8}>
                                 <Typography align="center" color="error">
                                     {eventsError}
                                 </Typography>

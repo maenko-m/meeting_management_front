@@ -2,7 +2,7 @@ import { Event } from "../types";
 import { addDays, addWeeks, addMonths, addYears, isAfter, parseISO, format } from "date-fns";
 
 
-const MAX_GENERATION_YEARS = 2; 
+const MAX_GENERATION_YEARS = 2; //предел расчета повторов
 
 const recurrenceMap = {
     day: addDays,

@@ -1,5 +1,5 @@
 import { Event, EventCreate, PaginatedResponse } from "../types";
-import { parseISO } from "date-fns";
+import { parseISO, startOfDay } from "date-fns";
 import { generateRecurringEvents } from "../utils/generateRecurringEvents";
 
 interface EventFilters {
@@ -65,7 +65,7 @@ export const fetchEvents = async (filters: EventFilters = {}): Promise<Event[]> 
     // Расширяем события повторами
     const allEvents = generateRecurringEvents(eventsWithFormattedTime);
     // Фильтрация по архиву
-    const now = new Date();
+    const now = startOfDay(new Date());
 
     const filtered = allEvents.filter((e) => {
       if (filters.isArchived === 'true') {
@@ -73,7 +73,7 @@ export const fetchEvents = async (filters: EventFilters = {}): Promise<Event[]> 
       } else if (filters.isArchived === 'false') {
         return parseISO(e.date) >= now; // Только будущие и текущие
       } else {
-        return true; // isArchived === null → ничего не фильтруем
+        return true; // isArchived === null ничего не фильтруем
       }
     });
 
@@ -83,7 +83,6 @@ export const fetchEvents = async (filters: EventFilters = {}): Promise<Event[]> 
       const bDate = new Date(`${b.date}T${b.timeStart}`);
       return filters.descOrder ? bDate.getTime() - aDate.getTime() : aDate.getTime() - bDate.getTime();
     });
-
 
     return sorted;
   } catch (error) {
