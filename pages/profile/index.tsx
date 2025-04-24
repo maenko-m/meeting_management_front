@@ -9,7 +9,9 @@ import { useAuth } from '../../context/AuthContext';
 import { UpdateEmployeeData, updateEmployee } from '../../api/employees';
 import { useRouter } from 'next/router';
 import { useNotification } from '../../context/NotificationContext';
+import { registerServiceWorker, removeSubscriptionFromServer, sendSubscriptionToServer, subscribeToPush } from '../../lib/push';
 
+const VAPID_PUBLIC_KEY = 'BBceryB_Lo_6FOu8_jstUK5ExGze1esePCV8P8NwRbSCkOMeIm9xn23_7dTWM14M6YQx2VPEVX8yqcqtgezRppc';
 
 const ProfilePage = () => {
 
@@ -26,7 +28,7 @@ const ProfilePage = () => {
         password: "",
         officeId: null as number | null,
         emailNotifications: true,
-        webPush: true,
+        webPush: localStorage.getItem('pushEnabled') ? Boolean(localStorage.getItem('pushEnabled')) : false,
     });
 
     const [offices, setOffices] = useState<Office[]>([]);
@@ -46,11 +48,31 @@ const ProfilePage = () => {
         setIsEdited(true);
     };
       
-    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleWebPushCheckboxChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, checked } = e.target;
         setProfile((prev) => ({ ...prev, [name]: checked }));
-        setIsEdited(true);
+
+        localStorage.setItem('pushEnabled', JSON.stringify(e.target.checked));
+
+        if (e.target.checked) {
+          try {
+            const registration = await registerServiceWorker();
+            const subscription = await subscribeToPush(registration, VAPID_PUBLIC_KEY);
+            await sendSubscriptionToServer(subscription, user!.id);
+          } catch (err) {
+            console.error('Push subscription failed:', err);
+          }
+        } else {
+          // Отключение пушей
+          const registration = await navigator.serviceWorker.ready;
+          const subscription = await registration.pushManager.getSubscription();
+          if (subscription) {
+            await subscription.unsubscribe(); 
+            await removeSubscriptionFromServer(subscription); 
+          }
+        }
     };
+  
       
     const handleOfficeChange = (e: SelectChangeEvent<string | number>) => {
         const value = e.target.value === 'none' ? null : Number(e.target.value);
@@ -207,7 +229,7 @@ const ProfilePage = () => {
                             })}
                         </Select>
                         <FormControlLabel 
-                            control={<Checkbox checked={profile.webPush} onChange={handleCheckboxChange} name="webPush" />}
+                            control={<Checkbox checked={profile.webPush} onChange={handleWebPushCheckboxChange} name="webPush" />}
                             label="Web-пуши о мероприятиях" />
                     </Box>
                   </Box>

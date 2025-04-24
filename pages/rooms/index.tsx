@@ -169,7 +169,7 @@ const MeetingRooms = () => {
                                     <TableCell>{room.name}</TableCell>
                                     <TableCell>{room.office.name}</TableCell>
                                     <TableCell>
-                                    {!room.isOccupied ? (
+                                    {room.occupied ? (
                                         <Chip
                                             label="Занята"
                                             sx={{

@@ -41,5 +41,17 @@ export async function sendSubscriptionToServer(
           },
         body: JSON.stringify({ ...subscription.toJSON(), userId }),
     });
+    localStorage.setItem('pushEnabled', JSON.stringify(true));
     return response.json();
 }
+
+export async function removeSubscriptionFromServer(subscription: PushSubscription): Promise<void> {
+    await fetch('http://127.0.0.1:8000/api/push-unsubscribe', {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+        "jwt": `${localStorage.getItem("jwt")}`,
+      },
+      body: JSON.stringify({ endpoint: subscription.endpoint }),
+    });
+  }
